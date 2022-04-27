@@ -1,6 +1,6 @@
-import {createElement} from "../render";
+import {createElement} from '../render';
 
-const createNewTripEventsListViewTemplate = () => `<ul class="trip-events__list"></ul>`;
+const createNewTripEventsListViewTemplate = () => '<ul class="trip-events__list"></ul>';
 
 export default class NewTripEventsListView {
   getTemplate() {

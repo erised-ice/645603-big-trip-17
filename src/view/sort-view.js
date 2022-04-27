@@ -1,4 +1,4 @@
-import {createElement} from "../render";
+import {createElement} from '../render';
 
 const createNewSortViewTemplate = () => (`
   <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -27,7 +27,7 @@ const createNewSortViewTemplate = () => (`
       <label class="trip-sort__btn" for="sort-offer">Offers</label>
     </div>
   </form>
-`)
+`);
 
 export default class NewSortView {
   getTemplate() {

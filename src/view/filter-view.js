@@ -1,4 +1,4 @@
-import {createElement} from "../render";
+import {createElement} from '../render';
 
 const createNewFilterViewTemplate = () => (`
   <div class="trip-main__trip-controls  trip-controls">
@@ -24,7 +24,7 @@ const createNewFilterViewTemplate = () => (`
       </form>
     </div>
   </div>
-`)
+`);
 
 export default class NewFilterView {
   getTemplate() {
