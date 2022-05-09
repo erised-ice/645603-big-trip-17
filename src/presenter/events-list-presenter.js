@@ -1,8 +1,9 @@
 import NewTripEventsListView from '../view/trip-events-list-view';
 
-import {render} from '../render.js';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
+import NoEventsView from '../view/no-events-view';
+import {render} from '../render.js';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
@@ -16,10 +17,15 @@ export default class EventsListPresenter {
     this.#eventModel = eventModel;
     this.#events = [...this.#eventModel.events];
 
-    render(this.#eventsListComponent, this.#eventsListContainer);
+    if (this.#events.length === 0) {
+      render(this.#eventsListComponent, this.#eventsListContainer);
+      render(new NoEventsView(), this.#eventsListComponent.element);
+    } else {
+      render(this.#eventsListComponent, this.#eventsListContainer);
 
-    for (let i = 0; i < this.#events.length; i++) {
-      this.#renderEvents(this.#events[i]);
+      for (let i = 0; i < this.#events.length; i++) {
+        this.#renderEvents(this.#events[i]);
+      }
     }
   };
 
