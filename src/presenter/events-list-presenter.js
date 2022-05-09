@@ -1,5 +1,4 @@
 import NewTripEventsListView from '../view/trip-events-list-view';
-
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
 import NoEventsView from '../view/no-events-view';
