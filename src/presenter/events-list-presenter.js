@@ -1,8 +1,8 @@
+import {render} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
 import NoEventsView from '../view/no-events-view';
-import {render} from '../render.js';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
@@ -48,17 +48,17 @@ export default class EventsListPresenter {
       }
     };
 
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    eventComponent.setArrowClickHandler(() => {
       replaceEventToForm();
       document.addEventListener('keydown', onEscKeyDown);
     });
 
-    editFormComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    editFormComponent.setArrowClickHandler(() => {
       replaceFormToEvent();
       document.removeEventListener('keydown', onEscKeyDown);
     });
 
-    editFormComponent.element.querySelector('.event__save-btn').addEventListener('click', () => {
+    editFormComponent.setSaveClickHandler(() => {
       replaceFormToEvent();
       document.removeEventListener('keydown', onEscKeyDown);
     });

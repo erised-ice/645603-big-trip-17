@@ -1,7 +1,16 @@
-import {createElement} from '../render';
+import AbstractView from '../framework/view/abstract-view.js';
 import {generateOffers} from '../mock/offers';
 import {generateDestinations} from '../mock/destinations';
 import {humanizeDate} from '../utils';
+
+const BLANK_EVENT = {
+  basePrice: '',
+  dateFrom: '0',
+  dateTo: '0',
+  destination: '',
+  offers: null,
+  type: '',
+};
 
 const createNewEditFormViewTemplate = (event = {}) => {
   const {
@@ -169,10 +178,9 @@ const createNewEditFormViewTemplate = (event = {}) => {
 `);
 };
 
-export default class NewEditFormView {
-  #element = null;
-
-  constructor(event) {
+export default class NewEditFormView extends AbstractView {
+  constructor(event = BLANK_EVENT) {
+    super();
     this.event = event;
   }
 
@@ -180,15 +188,23 @@ export default class NewEditFormView {
     return createNewEditFormViewTemplate(this.event);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setArrowClickHandler = (callback) => {
+    this._callback.arrowClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+  };
 
-    return this.#element;
-  }
+  #arrowClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.arrowClick();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  setSaveClickHandler = (callback) => {
+    this._callback.arrowClick = callback;
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#saveClickHandler);
+  };
+
+  #saveClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.arrowClick();
+  };
 }
