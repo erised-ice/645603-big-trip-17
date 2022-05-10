@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, setDurationFormat} from '../utils';
 import {generateOffers} from '../mock/offers';
 
@@ -68,10 +68,9 @@ const createNewEventViewTemplate = (event) => {
 `);
 };
 
-export default class NewEventView {
-  #element = null;
-
+export default class NewEventView extends AbstractView {
   constructor(event) {
+    super();
     this.event = event;
   }
 
@@ -79,15 +78,13 @@ export default class NewEventView {
     return createNewEventViewTemplate(this.event);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setArrowClickHandler = (callback) => {
+    this._callback.arrowClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #arrowClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.arrowClick();
+  };
 }
