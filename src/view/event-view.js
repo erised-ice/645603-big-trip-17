@@ -17,9 +17,9 @@ const createNewEventViewTemplate = (event) => {
 
   const offersArray = generateOffers();
 
-  const eventTypeOffers = offersArray.find((offer) => offer.type === event.type);
+  const eventTypeOffer = offersArray.find((offer) => offer.type === event.type);
 
-  const eventOffers = eventTypeOffers.offers.filter((item) => offers.includes(item.id));
+  const eventOffers = eventTypeOffer.offers.filter((item) => offers.includes(item.id));
 
   const createOffersTemplate = (offersData) => (
     `<ul class="event__selected-offers">
