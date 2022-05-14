@@ -78,7 +78,7 @@ export default class NewEventView extends AbstractView {
     return createNewEventViewTemplate(this.event);
   }
 
-  setArrowClickHandler = (callback) => {
+  setOpenArrowClickHandler = (callback) => {
     this._callback.arrowClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
   };

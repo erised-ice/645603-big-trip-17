@@ -188,7 +188,7 @@ export default class NewEditFormView extends AbstractView {
     return createNewEditFormViewTemplate(this.event);
   }
 
-  setArrowClickHandler = (callback) => {
+  setCloseArrowClickHandler = (callback) => {
     this._callback.arrowClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
   };

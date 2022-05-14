@@ -8,9 +8,9 @@ const siteMainElement = document.querySelector('.trip-main');
 const siteEventsElement = document.querySelector('.trip-events');
 
 const eventModel = new EventModel();
-const eventsListPresenter = new EventsListPresenter;
+const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel);
 
 render(new NewFilterView(), siteMainElement);
 render(new NewSortView(), siteEventsElement);
 
-eventsListPresenter.init(siteEventsElement, eventModel);
+eventsListPresenter.init();

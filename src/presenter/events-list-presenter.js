@@ -1,68 +1,49 @@
 import {render} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
-import NewEventView from '../view/event-view';
-import NewEditFormView from '../view/edit-form-view';
 import NoEventsView from '../view/no-events-view';
+import EventPresenter from './event-presenter';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventModel = null;
 
   #eventsListComponent = new NewTripEventsListView();
+  #noEventsComponent = new NoEventsView();
   #events = [];
 
-  init = (eventsListContainer, eventModel) => {
+  constructor(eventsListContainer, eventModel) {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
+  }
+
+  init = () => {
     this.#events = [...this.#eventModel.events];
 
-    if (this.#events.length === 0) {
-      render(this.#eventsListComponent, this.#eventsListContainer);
-      render(new NoEventsView(), this.#eventsListComponent.element);
-    } else {
-      render(this.#eventsListComponent, this.#eventsListContainer);
+    this.#renderEvents();
+  };
 
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvents(this.#events[i]);
-      }
+  #renderEvent = (event) => {
+    const eventPresenter = new EventPresenter(this.#eventsListComponent.element);
+    eventPresenter.init(event);
+  };
+
+  #renderNoEvents = () => {
+    render(this.#noEventsComponent, this.#eventsListComponent.element);
+  };
+
+  #renderEventsList = () => {
+    for (let i = 0; i < this.#events.length; i++) {
+      this.#renderEvent(this.#events[i]);
     }
   };
 
-  #renderEvents = (event) => {
-    const eventComponent = new NewEventView(event);
-    const editFormComponent = new NewEditFormView(event);
+  #renderEvents = () => {
+    render(this.#eventsListComponent, this.#eventsListContainer);
 
-    const replaceEventToForm = () => {
-      this.#eventsListComponent.element.replaceChild(editFormComponent.element, eventComponent.element);
-    };
-
-    const replaceFormToEvent = () => {
-      this.#eventsListComponent.element.replaceChild(eventComponent.element, editFormComponent.element);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToEvent();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
-
-    eventComponent.setArrowClickHandler(() => {
-      replaceEventToForm();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
-
-    editFormComponent.setArrowClickHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    editFormComponent.setSaveClickHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(eventComponent, this.#eventsListComponent.element);
+    if (this.#events.length === 0) {
+      this.#renderNoEvents();
+    } else {
+      this.#renderEventsList();
+    }
   };
 }
