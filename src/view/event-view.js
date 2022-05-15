@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeDate, setDurationFormat} from '../utils';
+import {humanizeDate, setDurationFormat} from '../utils/utils';
 import {generateOffers} from '../mock/offers';
 
 const createNewEventViewTemplate = (event) => {

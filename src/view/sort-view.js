@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createSortItemTemplate = (sort) => {
-  const {value, name, isChecked, isDisabled} = sort;
+const createSortItemTemplate = (sort, activeSort) => {
+  const {value, name, isDisabled} = sort;
 
   return (
     `<div class="trip-sort__item  trip-sort__item--${value}">
@@ -11,7 +11,7 @@ const createSortItemTemplate = (sort) => {
         type="radio"
         name="trip-sort"
         value="${value}"
-        ${isChecked ? 'checked' : ''}
+        ${activeSort === value ? 'checked' : ''}
         ${isDisabled ? 'disabled' : ''}
       >
       <label class="trip-sort__btn" for="${value}">${name}</label>
@@ -19,9 +19,9 @@ const createSortItemTemplate = (sort) => {
   );
 };
 
-const createNewSortViewTemplate = (sortItems) => {
+const createNewSortViewTemplate = (sortItems, activeSort) => {
   const sortItemsTemplate = sortItems
-    .map((sort) => createSortItemTemplate(sort)).join('');
+    .map((sort) => createSortItemTemplate(sort, activeSort)).join('');
 
   return (`
   <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -32,13 +32,15 @@ const createNewSortViewTemplate = (sortItems) => {
 
 export default class NewSortView extends AbstractView {
   #sorts = null;
+  #activeSort = null;
 
-  constructor(sorts) {
+  constructor(sorts, activeSort) {
     super();
     this.#sorts = sorts;
+    this.#activeSort = activeSort;
   }
 
   get template() {
-    return createNewSortViewTemplate(this.#sorts);
+    return createNewSortViewTemplate(this.#sorts, this.#activeSort);
   }
 }

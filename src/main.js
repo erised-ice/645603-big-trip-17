@@ -16,11 +16,13 @@ const eventModel = new EventModel();
 const tripInfoPresenter = new TripInfoPresenter;
 const eventsListPresenter = new EventsListPresenter;
 
-const filters = generateFilter();
+const activeFilter = 'everything';
+const filters = generateFilter(eventModel.events);
+const activeSort = 'time';
 const sorts = generateSort();
 
-render(new NewFilterView(filters), siteFiltersElement);
-render(new NewSortView(sorts), siteEventsElement);
+render(new NewFilterView(filters, activeFilter), siteFiltersElement);
+render(new NewSortView(sorts, activeSort), siteEventsElement);
 
 tripInfoPresenter.init(siteMainElement);
 eventsListPresenter.init(siteEventsElement, eventModel);

@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {generateOffers} from '../mock/offers';
 import {generateDestinations} from '../mock/destinations';
-import {humanizeDate} from '../utils';
+import {humanizeDate} from '../utils/utils';
 
 const BLANK_EVENT = {
   basePrice: '',
