@@ -23,12 +23,12 @@ export default class EventsListPresenter {
       render(this.#eventsListComponent, this.#eventsListContainer);
 
       for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvents(this.#events[i]);
+        this.#renderEvent(this.#events[i]);
       }
     }
   };
 
-  #renderEvents = (event) => {
+  #renderEvent = (event) => {
     const eventComponent = new NewEventView(event);
     const editFormComponent = new NewEditFormView(event);
 
