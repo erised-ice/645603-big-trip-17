@@ -1,68 +1,66 @@
 import {render} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
-import NewEventView from '../view/event-view';
-import NewEditFormView from '../view/edit-form-view';
 import NoEventsView from '../view/no-events-view';
+import EventPresenter from './event-presenter';
+import {updateItem} from '../utils/common';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventModel = null;
 
   #eventsListComponent = new NewTripEventsListView();
+  #noEventsComponent = new NoEventsView();
   #events = [];
+  #eventPresenter = new Map();
 
-  init = (eventsListContainer, eventModel) => {
+  constructor(eventsListContainer, eventModel) {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
+  }
+
+  init = () => {
     this.#events = [...this.#eventModel.events];
 
-    if (this.#events.length === 0) {
-      render(this.#eventsListComponent, this.#eventsListContainer);
-      render(new NoEventsView(), this.#eventsListComponent.element);
-    } else {
-      render(this.#eventsListComponent, this.#eventsListContainer);
+    this.#renderEvents();
+  };
 
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvent(this.#events[i]);
-      }
-    }
+  #handleModeChange = () => {
+    this.#eventPresenter.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleEventChange = (updatedEvent) => {
+    this.#events = updateItem(this.#events, updatedEvent);
+    this.#eventPresenter.get(updatedEvent.id).init(updatedEvent);
   };
 
   #renderEvent = (event) => {
-    const eventComponent = new NewEventView(event);
-    const editFormComponent = new NewEditFormView(event);
+    const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleEventChange, this.#handleModeChange);
+    eventPresenter.init(event);
+    this.#eventPresenter.set(event.id, eventPresenter);
+  };
 
-    const replaceEventToForm = () => {
-      this.#eventsListComponent.element.replaceChild(editFormComponent.element, eventComponent.element);
-    };
+  #renderNoEvents = () => {
+    render(this.#noEventsComponent, this.#eventsListComponent.element);
+  };
 
-    const replaceFormToEvent = () => {
-      this.#eventsListComponent.element.replaceChild(eventComponent.element, editFormComponent.element);
-    };
+  #clearEventList = () => {
+    this.#eventPresenter.forEach((presenter) => presenter.destroy());
+    this.#eventPresenter.clear();
+  };
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToEvent();
-        document.removeEventListener('keydown', onEscKeyDown);
-      }
-    };
+  #renderEventsList = () => {
+    for (let i = 0; i < this.#events.length; i++) {
+      this.#renderEvent(this.#events[i]);
+    }
+  };
 
-    eventComponent.setArrowClickHandler(() => {
-      replaceEventToForm();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
+  #renderEvents = () => {
+    render(this.#eventsListComponent, this.#eventsListContainer);
 
-    editFormComponent.setArrowClickHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    editFormComponent.setSaveClickHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
-
-    render(eventComponent, this.#eventsListComponent.element);
+    if (this.#events.length === 0) {
+      this.#renderNoEvents();
+    } else {
+      this.#renderEventsList();
+    }
   };
 }

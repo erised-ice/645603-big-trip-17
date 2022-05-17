@@ -13,16 +13,16 @@ const siteControlsElement = siteMainElement.querySelector('.trip-controls');
 const siteFiltersElement = siteControlsElement.querySelector('.trip-controls__filters');
 
 const eventModel = new EventModel();
+const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel);
 const tripInfoPresenter = new TripInfoPresenter;
-const eventsListPresenter = new EventsListPresenter;
 
 const activeFilter = 'everything';
 const filters = generateFilter(eventModel.events);
 const activeSort = 'time';
 const sorts = generateSort();
 
-render(new NewFilterView(filters, activeFilter), siteFiltersElement);
 render(new NewSortView(sorts, activeSort), siteEventsElement);
+render(new NewFilterView(filters, activeFilter), siteFiltersElement);
 
 tripInfoPresenter.init(siteMainElement);
-eventsListPresenter.init(siteEventsElement, eventModel);
+eventsListPresenter.init();

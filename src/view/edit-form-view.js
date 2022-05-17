@@ -179,32 +179,34 @@ const createNewEditFormViewTemplate = (event = {}) => {
 };
 
 export default class NewEditFormView extends AbstractView {
+  #event = null;
+
   constructor(event = BLANK_EVENT) {
     super();
-    this.event = event;
+    this.#event = event;
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this.event);
+    return createNewEditFormViewTemplate(this.#event);
   }
 
-  setArrowClickHandler = (callback) => {
+  setCloseArrowClickHandler = (callback) => {
     this._callback.arrowClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
   };
 
   #arrowClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.arrowClick();
+    this._callback.arrowClick(this.#event);
   };
 
   setSaveClickHandler = (callback) => {
-    this._callback.arrowClick = callback;
+    this._callback.saveClick = callback;
     this.element.querySelector('.event__save-btn').addEventListener('click', this.#saveClickHandler);
   };
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.arrowClick();
+    this._callback.saveClick(this.#event);
   };
 }

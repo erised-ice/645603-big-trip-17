@@ -78,13 +78,23 @@ export default class NewEventView extends AbstractView {
     return createNewEventViewTemplate(this.event);
   }
 
-  setArrowClickHandler = (callback) => {
+  setOpenArrowClickHandler = (callback) => {
     this._callback.arrowClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+  };
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   };
 
   #arrowClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.arrowClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.favoriteClick();
   };
 }
