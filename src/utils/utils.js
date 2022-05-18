@@ -1,18 +1,14 @@
 import dayjs from 'dayjs';
 
 const humanizeDate = (date, format) => dayjs(date).format(format);
+const datesDiff = (date1, date2) => dayjs(date2).diff(dayjs(date1), 's');
 
-const setDurationFormat = (numberInMinutes) => {
-  const hour = 60;
-  const day = 24 * hour;
+const setDurationFormat = (numberInSeconds) => {
+  const min = numberInSeconds / 60;
 
-  if (numberInMinutes < hour) {
-    return `${Math.floor(numberInMinutes)}M`;
-  } else if (numberInMinutes >= hour && numberInMinutes < day) {
-    return `${Math.floor(numberInMinutes / hour)}H ${Math.floor(numberInMinutes % hour)}M`;
-  } else {
-    return `${Math.floor(numberInMinutes / day)}D ${Math.floor((numberInMinutes % day) / hour)}H ${Math.floor(Math.floor((numberInMinutes % day) % hour))}M`;
-  }
+  const hour = min / 60;
+
+  return `${Math.floor(hour / 24)}D ${Math.floor(hour % 24)}H ${Math.floor(min % 60)}M`;
 };
 
 const getRandomInteger = (a = 0, b = 1) => {
@@ -22,4 +18,4 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export {humanizeDate, setDurationFormat, getRandomInteger};
+export {humanizeDate, datesDiff, setDurationFormat, getRandomInteger};

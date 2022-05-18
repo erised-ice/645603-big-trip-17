@@ -4,14 +4,7 @@ import {nanoid} from 'nanoid';
 
 const generateDateFrom = () => {
   const maxDayGap = 40;
-  const daysGap = getRandomInteger(-maxDayGap, maxDayGap);
-
-  return dayjs().add(daysGap, 'day').toDate();
-};
-
-const generateDateTo = () => {
-  const maxDayGap = 10;
-  const daysGap = getRandomInteger(-maxDayGap, maxDayGap);
+  const daysGap = getRandomInteger(-maxDayGap, 0);
 
   return dayjs().add(daysGap, 'day').toDate();
 };
@@ -25,14 +18,13 @@ const generatePrice = () => {
 
 export const generateEvent = () => {
   const dateFrom = generateDateFrom();
-  const dateTo = generateDateTo();
   const price = generatePrice();
 
   return ({
     id: nanoid(),
     basePrice: price,
     dateFrom: dateFrom,
-    dateTo: dateTo,
+    dateTo: '2022-07-11T11:22:13.375Z',
     destination: 'Amsterdam',
     isFavorite: true,
     offers: [1,3],

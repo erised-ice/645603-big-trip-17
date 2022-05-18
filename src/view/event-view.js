@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {humanizeDate, setDurationFormat} from '../utils/utils';
+import {humanizeDate, datesDiff, setDurationFormat} from '../utils/utils';
 import {generateOffers} from '../mock/offers';
 
 const createNewEventViewTemplate = (event) => {
@@ -8,8 +8,9 @@ const createNewEventViewTemplate = (event) => {
   const date = humanizeDate(dateFrom, 'MMM D');
   const firstDate = humanizeDate(dateFrom, 'H:mm');
   const secondDate = humanizeDate(dateTo, 'H:mm');
+  const datesDiffInMinutes = datesDiff(dateFrom, dateTo);
 
-  const eventDuration = setDurationFormat(1580.80);
+  const eventDuration = setDurationFormat(datesDiffInMinutes);
 
   const favoriteClassName = isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
