@@ -11,15 +11,14 @@ import {SortType} from '../const';
 export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventModel = null;
-  #activeSort = 'day';
   #sorts = generateSort();
 
   #eventsListComponent = new NewTripEventsListView();
   #noEventsComponent = new NoEventsView();
-  #sortComponent = new NewSortView(this.#sorts, this.#activeSort);
   #events = [];
   #eventPresenter = new Map();
-  #currentSortType = SortType.DAY;
+  #activeSort = SortType.DAY;
+  #sortComponent = new NewSortView(this.#sorts, this.#activeSort);
 
   constructor(eventsListContainer, eventModel) {
     this.#eventsListContainer = eventsListContainer;
@@ -88,17 +87,17 @@ export default class EventsListPresenter {
         this.#events.sort(sortEventsByDate);
     }
 
-    this.#currentSortType = sortType;
+    this.#activeSort = sortType;
   };
 
   #handleSortTypeChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
+    if (this.#activeSort === sortType) {
       return;
     }
 
     this.#clearEventList();
-    this.#renderEventsList();
     this.#sortEvents(sortType);
+    this.#renderEventsList();
   };
 
   #renderSort = () => {
