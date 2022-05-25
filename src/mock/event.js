@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import {getRandomInteger} from '../utils/utils';
 import {nanoid} from 'nanoid';
+import {getRandomInteger} from '../utils/utils';
 
 const generateDateFrom = () => {
   const maxDayGap = 40;
@@ -28,6 +28,6 @@ export const generateEvent = () => {
     destination: 'Amsterdam',
     isFavorite: true,
     offers: [1,3],
-    type: 'ship'
+    type: 'taxi'
   });
 };
