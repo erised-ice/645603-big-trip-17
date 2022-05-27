@@ -38,5 +38,10 @@ export const generateDestinations = () => ([
         'description': 'Barcelona parliament'
       }
     ]
+  },
+  {
+    'description': 'Naples, is a beautiful city, a true asian pearl, with crowded streets.',
+    'name': 'Naples',
+    'pictures': []
   }
 ]);

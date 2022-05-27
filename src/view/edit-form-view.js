@@ -1,7 +1,8 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {generateOffers} from '../mock/offers';
 import {generateDestinations} from '../mock/destinations';
 import {humanizeDate} from '../utils/utils';
+import {TYPES} from '../const';
 
 const BLANK_EVENT = {
   basePrice: '',
@@ -12,29 +13,43 @@ const BLANK_EVENT = {
   type: '',
 };
 
-const createNewEditFormViewTemplate = (event = {}) => {
-  const {
-    basePrice = '',
-    dateFrom = '0',
-    dateTo = '0',
-    destination = '',
-    offers = null,
-    type = ''
-  } = event;
+const createNewEditFormViewTemplate = (data) => {
+  const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
 
   const offersArray = generateOffers();
 
+  const destinationsArray = generateDestinations();
+  const eventDestination = destinationsArray.find(
+    (item) => item.name === data.destination);
+
+  const createTypeEditTemplate = (currentType) => TYPES.map((eventType) => (
+    `<div class="event__type-item">
+      <input
+        id="event-type-${eventType}-1"
+        class="event__type-input visually-hidden"
+        type="radio"
+        name="event-type"
+        value="${eventType}"
+        ${currentType === eventType ? 'checked' : ''}
+      >
+      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
+    </div>`)
+  ).join('');
+
+  const createDestinationsListTemplate = () => (
+    destinationsArray.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
+
   const createOffersTemplate = (offersData) => (
     `${offersData !== null ? `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-        ${offersArray.find((offer) => offer.type === event.type).offers.map((item) => {
+        ${offersArray.find((offer) => offer.type === data.type).offers.map((item) => {
 
-      const checked = event.offers.includes(item.id) ? 'checked' : '';
+      const checked = data.offers.includes(item.id) ? 'checked' : '';
 
       return `<div class="event__offer-selector">
           <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${checked}>
@@ -48,10 +63,6 @@ const createNewEditFormViewTemplate = (event = {}) => {
       </div>
     </section>` : ''}`
   );
-
-  const destinationsArray = generateDestinations();
-  const eventDestination = destinationsArray.find(
-    (item) => item.name === event.destination);
 
   const createDestinationTemplate = (destinationData) => (
     `${destinationData !== '' ?
@@ -67,12 +78,10 @@ const createNewEditFormViewTemplate = (event = {}) => {
       </section>` : '' }`
   );
 
-  const createDestinationsListTemplate = () => (
-    destinationsArray.map((item) => `<option value="${item.name}"></option>`).join(''));
-
+  const typesTemplate = createTypeEditTemplate(type);
   const destinationsList = createDestinationsListTemplate();
-  const destinationTemplate = createDestinationTemplate(destination);
   const offersTemplate = createOffersTemplate(offers);
+  const destinationTemplate = createDestinationTemplate(destination);
 
   return (`
 <li class="trip-events__item">
@@ -81,58 +90,14 @@ const createNewEditFormViewTemplate = (event = {}) => {
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
           <span class="visually-hidden">Choose event type</span>
-          ${type && '<img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">'}
+          <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
         <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Event type</legend>
-
-            <div class="event__type-item">
-              <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-              <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-              <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-              <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-              <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-              <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked>
-              <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-              <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-              <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-              <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-            </div>
+            ${typesTemplate}
           </fieldset>
         </div>
       </div>
@@ -178,26 +143,51 @@ const createNewEditFormViewTemplate = (event = {}) => {
 `);
 };
 
-export default class NewEditFormView extends AbstractView {
-  #event = null;
-
+export default class NewEditFormView extends AbstractStatefulView {
   constructor(event = BLANK_EVENT) {
     super();
-    this.#event = event;
+    this._state = NewEditFormView.parseEventToState(event);
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this.#event);
+    return createNewEditFormViewTemplate(this._state);
   }
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setCloseArrowClickHandler(this._callback.arrowClick);
+    this.setSaveClickHandler(this._callback.saveClick);
+  };
+
+  #eventTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({
+      type: evt.target.value,
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    this.updateElement({
+      destination: evt.target.value,
+    });
+  };
 
   setCloseArrowClickHandler = (callback) => {
     this._callback.arrowClick = callback;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
   };
 
+  reset = (event) => {
+    this.updateElement(
+      NewEditFormView.parseEventToState(event)
+    );
+  };
+
   #arrowClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.arrowClick(this.#event);
+    this._callback.arrowClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
   setSaveClickHandler = (callback) => {
@@ -207,6 +197,19 @@ export default class NewEditFormView extends AbstractView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.saveClick(this.#event);
+    this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+  };
+
+  static parseEventToState = (event) => ({...event});
+
+  static parseStateToEvent = (state) => {
+    const event = {...state};
+
+    return event;
   };
 }
