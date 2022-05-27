@@ -169,11 +169,9 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    setTimeout(() => {
-      this.updateElement({
-        destination: evt.target.value,
-      });
-    }, '5000');
+    this.updateElement({
+      destination: evt.target.value,
+    });
   };
 
   setCloseArrowClickHandler = (callback) => {
@@ -204,7 +202,7 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
   };
 
   static parseEventToState = (event) => ({...event});
