@@ -3,6 +3,8 @@ import {generateOffers} from '../mock/offers';
 import {generateDestinations} from '../mock/destinations';
 import {humanizeDate} from '../utils/utils';
 import {TYPES} from '../const';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
   basePrice: '',
@@ -144,19 +146,34 @@ const createNewEditFormViewTemplate = (data) => {
 };
 
 export default class NewEditFormView extends AbstractStatefulView {
+  #datepicker = null;
+
   constructor(event = BLANK_EVENT) {
     super();
     this._state = NewEditFormView.parseEventToState(event);
 
     this.#setInnerHandlers();
+    this.#setDateFromDatepicker();
+    this.#setDateToDatepicker();
   }
 
   get template() {
     return createNewEditFormViewTemplate(this._state);
   }
 
+  removeElement = () => {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
   _restoreHandlers = () => {
     this.#setInnerHandlers();
+    this.#setDateFromDatepicker();
+    this.#setDateToDatepicker();
     this.setCloseArrowClickHandler(this._callback.arrowClick);
     this.setSaveClickHandler(this._callback.saveClick);
   };
@@ -198,6 +215,45 @@ export default class NewEditFormView extends AbstractStatefulView {
   #saveClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
+  };
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #setDateFromDatepicker = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: 'd M H:i',
+        enableTime: true,
+        defaultDate: this._state.dateFrom,
+        'time_24hr': true,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  };
+
+  #setDateToDatepicker = () => {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd M H:i',
+        enableTime: true,
+        defaultDate: this._state.dateTo,
+        'time_24hr': true,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
   };
 
   #setInnerHandlers = () => {
