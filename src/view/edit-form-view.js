@@ -233,7 +233,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     this.#datepicker = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
-        dateFormat: 'd M H:i',
+        dateFormat: 'd/m/Y H:i',
         enableTime: true,
         defaultDate: this._state.dateFrom,
         'time_24hr': true,
@@ -246,7 +246,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     this.#datepicker = flatpickr(
       this.element.querySelector('#event-end-time-1'),
       {
-        dateFormat: 'd M H:i',
+        dateFormat: 'd/m/Y H:i',
         enableTime: true,
         defaultDate: this._state.dateTo,
         'time_24hr': true,
