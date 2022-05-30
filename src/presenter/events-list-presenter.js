@@ -2,7 +2,6 @@ import {render, RenderPosition} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
 import NoEventsView from '../view/no-events-view';
 import EventPresenter from './event-presenter';
-import {updateItem} from '../utils/common';
 import NewSortView from '../view/sort-view';
 import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
@@ -15,7 +14,6 @@ export default class EventsListPresenter {
 
   #eventsListComponent = new NewTripEventsListView();
   #noEventsComponent = new NoEventsView();
-  #events = [];
   #eventPresenter = new Map();
   #activeSort = SortType.DAY;
   #sortComponent = new NewSortView(this.#sorts, this.#activeSort);
@@ -25,11 +23,22 @@ export default class EventsListPresenter {
     this.#eventModel = eventModel;
   }
 
+  get events() {
+    switch (this.#activeSort) {
+      case SortType.DAY:
+        return [...this.#eventModel.events].sort(sortEventsByDate);
+      case SortType.TIME:
+        return [...this.#eventModel.events].sort(sortEventsByTime);
+      case SortType.PRICE:
+        return [...this.#eventModel.events].sort(sortEventsByPrice);
+    }
+
+    return this.#eventModel.events;
+  }
+
   init = () => {
-    this.#events = [...this.#eventModel.events];
-    this.#events.sort(sortEventsByDate);
     this.#renderEvents();
-    this.#renderSort();
+    this.#renderSort();/*  */
   };
 
   #handleModeChange = () => {
@@ -37,7 +46,6 @@ export default class EventsListPresenter {
   };
 
   #handleEventChange = (updatedEvent) => {
-    this.#events = updateItem(this.#events, updatedEvent);
     this.#eventPresenter.get(updatedEvent.id).init(updatedEvent);
   };
 
@@ -57,37 +65,19 @@ export default class EventsListPresenter {
   };
 
   #renderEventsList = () => {
-    for (let i = 0; i < this.#events.length; i++) {
-      this.#renderEvent(this.#events[i]);
+    for (let i = 0; i < this.events.length; i++) {
+      this.#renderEvent(this.events[i]);
     }
   };
 
   #renderEvents = () => {
     render(this.#eventsListComponent, this.#eventsListContainer);
 
-    if (this.#events.length === 0) {
+    if (this.events.length === 0) {
       this.#renderNoEvents();
     } else {
       this.#renderEventsList();
     }
-  };
-
-  #sortEvents = (sortType) => {
-    switch (sortType) {
-      case SortType.DAY:
-        this.#events.sort(sortEventsByDate);
-        break;
-      case SortType.TIME:
-        this.#events.sort(sortEventsByTime);
-        break;
-      case SortType.PRICE:
-        this.#events.sort(sortEventsByPrice);
-        break;
-      default:
-        this.#events.sort(sortEventsByDate);
-    }
-
-    this.#activeSort = sortType;
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -95,12 +85,12 @@ export default class EventsListPresenter {
       return;
     }
 
+    this.#activeSort = sortType;
     this.#clearEventList();
-    this.#sortEvents(sortType);
     this.#renderEventsList();
   };
 
-  #renderSort = () => {
+  #renderSort = () => {/* */
     render(this.#sortComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
