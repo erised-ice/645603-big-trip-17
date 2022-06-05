@@ -1,4 +1,4 @@
-import {render, RenderPosition} from '../framework/render';
+import {remove, render, RenderPosition} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
 import NoEventsView from '../view/no-events-view';
 import EventPresenter from './event-presenter';
@@ -16,7 +16,7 @@ export default class EventsListPresenter {
   #noEventsComponent = new NoEventsView();
   #eventPresenter = new Map();
   #activeSort = SortType.DAY;
-  #sortComponent = new NewSortView(this.#sorts, this.#activeSort);
+  #sortComponent = null;
 
   constructor(eventsListContainer, eventModel) {
     this.#eventsListContainer = eventsListContainer;
@@ -40,7 +40,6 @@ export default class EventsListPresenter {
 
   init = () => {
     this.#renderEvents();
-    this.#renderSort();/*  */
   };
 
   #handleModeChange = () => {
@@ -62,20 +61,20 @@ export default class EventsListPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-     switch (updateType) {
-       case UpdateType.PATCH:
-         this.#taskPresenter.get(data.id).init(data);
-         break;
-       case UpdateType.MINOR:
-         this.#clearBoard(); /**/
-         this.#renderEvents(); /**/
-         break;
-       case UpdateType.MAJOR:
-         this.#clearBoard({resetRenderedTaskCount: true, resetSortType: true});/**/
-         this.#renderEvents();/**/
-         break;
-     }
-  }
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearEvents();
+        this.#renderEvents();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearEvents({resetSortType: true});
+        this.#renderEvents();
+        break;
+    }
+  };
 
   #renderEvent = (event) => {
     const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange);
@@ -87,14 +86,32 @@ export default class EventsListPresenter {
     render(this.#noEventsComponent, this.#eventsListComponent.element);
   };
 
-  #clearEventList = () => {
-    this.#eventPresenter.forEach((presenter) => presenter.destroy());
-    this.#eventPresenter.clear();
+  #handleSortTypeChange = (sortType) => {
+    if (this.#activeSort === sortType) {
+      return;
+    }
+
+    this.#activeSort = sortType;
+    this.#clearEvents();
+    this.#renderEvents();
   };
 
-  #renderEventsList = () => {
-    for (let i = 0; i < this.events.length; i++) {
-      this.#renderEvent(this.events[i]);
+  #renderSort = () => {
+    this.#sortComponent = new NewSortView(this.#sorts, this.#activeSort);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+
+    render(this.#sortComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
+  };
+
+  #clearEvents = ({resetSortType = false} = {}) => {
+    this.#eventPresenter.forEach((presenter) => presenter.destroy());
+    this.#eventPresenter.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#noEventsComponent);
+
+    if (resetSortType) {
+      this.#activeSort = SortType.DAY;
     }
   };
 
@@ -104,22 +121,11 @@ export default class EventsListPresenter {
     if (this.events.length === 0) {
       this.#renderNoEvents();
     } else {
-      this.#renderEventsList();
-    }
-  };
-
-  #handleSortTypeChange = (sortType) => {
-    if (this.#activeSort === sortType) {
-      return;
+      for (let i = 0; i < this.events.length; i++) {
+        this.#renderEvent(this.events[i]);
+      }
     }
 
-    this.#activeSort = sortType;
-    this.#clearEventList();
-    this.#renderEventsList();
-  };
-
-  #renderSort = () => {/* */
-    render(this.#sortComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);
-    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+    this.#renderSort();
   };
 }
