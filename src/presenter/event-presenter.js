@@ -1,6 +1,7 @@
 import {render, replace, remove} from '../framework/render';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
+import {userAction, UpdateType, UserAction} from "../const";
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -99,11 +100,19 @@ export default class EventPresenter {
   };
 
   #handleSaveClick = (event) => {
-    this.#changeData(event);
+    this.#changeData(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      event,
+    );
     this.#replaceFormToEvent();
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
   };
 }

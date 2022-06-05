@@ -5,7 +5,7 @@ import EventPresenter from './event-presenter';
 import NewSortView from '../view/sort-view';
 import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
-import {SortType} from '../const';
+import {SortType, UpdateType, UserAction} from '../const';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
@@ -21,6 +21,8 @@ export default class EventsListPresenter {
   constructor(eventsListContainer, eventModel) {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
+
+    this.#eventModel.addObserver(this.#handleModelEvent);
   }
 
   get events() {
@@ -45,12 +47,38 @@ export default class EventsListPresenter {
     this.#eventPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleEventChange = (updatedEvent) => {
-    this.#eventPresenter.get(updatedEvent.id).init(updatedEvent);
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#eventModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#eventModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#eventModel.deleteEvent(updateType, update);
+        break;
+    }
   };
 
+  #handleModelEvent = (updateType, data) => {
+     switch (updateType) {
+       case UpdateType.PATCH:
+         this.#taskPresenter.get(data.id).init(data);
+         break;
+       case UpdateType.MINOR:
+         this.#clearBoard(); /**/
+         this.#renderEvents(); /**/
+         break;
+       case UpdateType.MAJOR:
+         this.#clearBoard({resetRenderedTaskCount: true, resetSortType: true});/**/
+         this.#renderEvents();/**/
+         break;
+     }
+  }
+
   #renderEvent = (event) => {
-    const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleEventChange, this.#handleModeChange);
+    const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange);
     eventPresenter.init(event);
     this.#eventPresenter.set(event.id, eventPresenter);
   };
