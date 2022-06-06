@@ -5,37 +5,46 @@ import EventPresenter from './event-presenter';
 import NewSortView from '../view/sort-view';
 import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
-import {SortType, UpdateType, UserAction} from '../const';
+import {filter} from '../utils/filter';
+import {SortType, UpdateType, UserAction, FilterType} from '../const';
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventModel = null;
+  #filterModel = null;
   #sorts = generateSort();
 
   #eventsListComponent = new NewTripEventsListView();
-  #noEventsComponent = new NoEventsView();
+  #noEventsComponent = null;
   #eventPresenter = new Map();
   #activeSort = SortType.DAY;
   #sortComponent = null;
+  #filterType = FilterType.EVERY;
 
-  constructor(eventsListContainer, eventModel) {
+  constructor(eventsListContainer, eventModel, filterModel) {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
+    this.#filterModel = filterModel;
 
     this.#eventModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get events() {
+    this.#filterType = this.#filterModel.filter;
+    const events = this.#eventModel.events;
+    const filteredEvents = filter[this.#filterType](events);
+
     switch (this.#activeSort) {
       case SortType.DAY:
-        return [...this.#eventModel.events].sort(sortEventsByDate);
+        return filteredEvents.sort(sortEventsByDate);
       case SortType.TIME:
-        return [...this.#eventModel.events].sort(sortEventsByTime);
+        return filteredEvents.sort(sortEventsByTime);
       case SortType.PRICE:
-        return [...this.#eventModel.events].sort(sortEventsByPrice);
+        return filteredEvents.sort(sortEventsByPrice);
     }
 
-    return this.#eventModel.events;
+    return filteredEvents;
   }
 
   init = () => {
@@ -83,6 +92,7 @@ export default class EventsListPresenter {
   };
 
   #renderNoEvents = () => {
+    this.#noEventsComponent = new NoEventsView(this.#filterType);
     render(this.#noEventsComponent, this.#eventsListComponent.element);
   };
 
@@ -108,7 +118,10 @@ export default class EventsListPresenter {
     this.#eventPresenter.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noEventsComponent);
+
+    if (this.#noEventsComponent) {
+      remove(this.#noEventsComponent);
+    }
 
     if (resetSortType) {
       this.#activeSort = SortType.DAY;

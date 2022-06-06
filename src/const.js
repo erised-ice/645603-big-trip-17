@@ -4,6 +4,12 @@ const SortType = {
   PRICE: 'price',
 };
 
+const FilterType = {
+  EVERY: 'everything',
+  FUTURE: 'future',
+  PAST: 'past',
+};
+
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const UserAction = {
@@ -18,4 +24,4 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
-export {SortType, TYPES, UserAction, UpdateType};
+export {SortType, FilterType, TYPES, UserAction, UpdateType};

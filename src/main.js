@@ -1,9 +1,8 @@
-import {render} from './framework/render';
-import NewFilterView from './view/filter-view';
 import TripInfoPresenter from './presenter/trip-info-presenter';
 import EventsListPresenter from './presenter/events-list-presenter';
+import FilterPresenter from './presenter/filter-presenter';
 import EventModel from './model/event-model';
-import {generateFilter} from './mock/filter';
+import FilterModel from './model/filter-model';
 
 const siteMainElement = document.querySelector('.trip-main');
 const siteEventsElement = document.querySelector('.trip-events');
@@ -11,13 +10,11 @@ const siteControlsElement = siteMainElement.querySelector('.trip-controls');
 const siteFiltersElement = siteControlsElement.querySelector('.trip-controls__filters');
 
 const eventModel = new EventModel();
-const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel);
+const filterModel = new FilterModel();
+const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, filterModel);
 const tripInfoPresenter = new TripInfoPresenter;
-
-const activeFilter = 'everything';
-const filters = generateFilter(eventModel.events);
-
-render(new NewFilterView(filters, activeFilter), siteFiltersElement);
+const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
 
 tripInfoPresenter.init(siteMainElement);
+filterPresenter.init();
 eventsListPresenter.init();
