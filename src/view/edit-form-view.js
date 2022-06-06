@@ -170,12 +170,18 @@ export default class NewEditFormView extends AbstractStatefulView {
     }
   };
 
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+  };
+
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.#setDateFromDatepicker();
     this.#setDateToDatepicker();
     this.setCloseArrowClickHandler(this._callback.arrowClick);
     this.setSaveClickHandler(this._callback.saveClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   #eventTypeChangeHandler = (evt) => {
@@ -259,6 +265,11 @@ export default class NewEditFormView extends AbstractStatefulView {
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event});

@@ -38,6 +38,7 @@ export default class EventPresenter {
     this.#eventComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editFormComponent.setCloseArrowClickHandler(this.#handleCloseArrowClick);
     this.#editFormComponent.setSaveClickHandler(this.#handleSaveClick);
+    this.#editFormComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
     if (prevEventComponent === null || prevEditFormComponent === null) {
       render(this.#eventComponent, this.#eventListContainer);
@@ -99,12 +100,16 @@ export default class EventPresenter {
     this.#replaceFormToEvent();
   };
 
-  #handleSaveClick = (event) => {
+  #handleSaveClick = (update) => {
+    const isMinorUpdate =
+      this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo;
+
     this.#changeData(
       UserAction.UPDATE_EVENT,
-      UpdateType.MINOR,
-      event,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update
     );
+
     this.#replaceFormToEvent();
   };
 
@@ -113,6 +118,14 @@ export default class EventPresenter {
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
       {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#changeData(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event,
     );
   };
 }
