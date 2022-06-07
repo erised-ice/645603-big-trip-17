@@ -11,8 +11,8 @@ const BLANK_EVENT = {
   dateFrom: '0',
   dateTo: '0',
   destination: '',
-  offers: null,
-  type: '',
+  offers: [],
+  type: 'bus'
 };
 
 const createNewEditFormViewTemplate = (data) => {

@@ -2,6 +2,7 @@ import {remove, render, RenderPosition} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
 import NoEventsView from '../view/no-events-view';
 import EventPresenter from './event-presenter';
+import EventNewPresenter from './event-new-presenter';
 import NewSortView from '../view/sort-view';
 import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
@@ -17,6 +18,7 @@ export default class EventsListPresenter {
   #eventsListComponent = new NewTripEventsListView();
   #noEventsComponent = null;
   #eventPresenter = new Map();
+  #eventNewPresenter = null;
   #activeSort = SortType.DAY;
   #sortComponent = null;
   #filterType = FilterType.EVERY;
@@ -25,6 +27,8 @@ export default class EventsListPresenter {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
     this.#filterModel = filterModel;
+
+    this.#eventNewPresenter = new EventNewPresenter(this.#eventsListComponent.element, this.#handleViewAction);
 
     this.#eventModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -51,7 +55,14 @@ export default class EventsListPresenter {
     this.#renderEvents();
   };
 
+  createEvent = (callback) => {
+    this.#activeSort = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERY);
+    this.#eventNewPresenter.init(callback);
+  };
+
   #handleModeChange = () => {
+    this.#eventNewPresenter.destroy();
     this.#eventPresenter.forEach((presenter) => presenter.resetView());
   };
 
@@ -114,6 +125,7 @@ export default class EventsListPresenter {
   };
 
   #clearEvents = ({resetSortType = false} = {}) => {
+    this.#eventNewPresenter.destroy();
     this.#eventPresenter.forEach((presenter) => presenter.destroy());
     this.#eventPresenter.clear();
 
