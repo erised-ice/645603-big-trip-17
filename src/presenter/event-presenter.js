@@ -32,7 +32,7 @@ export default class EventPresenter {
     const prevEditFormComponent = this.#editFormComponent;
 
     this.#eventComponent = new NewEventView(event);
-    this.#editFormComponent = new NewEditFormView(event);
+    this.#editFormComponent = new NewEditFormView({event});
 
     this.#eventComponent.setOpenArrowClickHandler(this.#handleOpenArrowClick);
     this.#eventComponent.setFavoriteClickHandler(this.#handleFavoriteClick);

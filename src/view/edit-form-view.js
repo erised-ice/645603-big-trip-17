@@ -15,7 +15,7 @@ const BLANK_EVENT = {
   type: 'bus'
 };
 
-const createNewEditFormViewTemplate = (data) => {
+const createNewEditFormViewTemplate = (data, isAddForm) => {
   const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
@@ -131,10 +131,12 @@ const createNewEditFormViewTemplate = (data) => {
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
+      ${!isAddForm ? (`
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
-      </button>
+      </button>`
+    ) : ''}
     </header>
     <section class="event__details">
     ${offersTemplate}
@@ -148,9 +150,10 @@ const createNewEditFormViewTemplate = (data) => {
 export default class NewEditFormView extends AbstractStatefulView {
   #datepicker = null;
 
-  constructor(event = BLANK_EVENT) {
+  constructor({event: event = BLANK_EVENT, isAddForm: isAddForm = false}) {
     super();
     this._state = NewEditFormView.parseEventToState(event);
+    this.isAddForm = isAddForm;
 
     this.#setInnerHandlers();
     this.#setDateFromDatepicker();
@@ -158,7 +161,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this._state);
+    return createNewEditFormViewTemplate(this._state, this.isAddForm);
   }
 
   removeElement = () => {
@@ -171,8 +174,18 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   setDeleteClickHandler = (callback) => {
-    this._callback.deleteClick = callback;
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    if (!this.isAddForm) {
+      this._callback.deleteClick = callback;
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    }
+  };
+
+  setCancelClickHandler = (callback) => {
+    if (this.isAddForm) {
+      this._callback.cancelClick = callback;
+
+      this.element.querySelector('.cansel-btn').addEventListener('click', this.#formCancelClickHandler);
+    }
   };
 
   _restoreHandlers = () => {
@@ -182,6 +195,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     this.setCloseArrowClickHandler(this._callback.arrowClick);
     this.setSaveClickHandler(this._callback.saveClick);
     this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setCancelClickHandler(this._callback.cancelClick);
   };
 
   #eventTypeChangeHandler = (evt) => {
@@ -198,8 +212,10 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   setCloseArrowClickHandler = (callback) => {
-    this._callback.arrowClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+    if (!this.isAddForm) {
+      this._callback.arrowClick = callback;
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+    }
   };
 
   reset = (event) => {
@@ -270,6 +286,11 @@ export default class NewEditFormView extends AbstractStatefulView {
   #formDeleteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.deleteClick(NewEditFormView.parseStateToEvent(this._state));
+  };
+
+  #formCancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.cancelClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event});

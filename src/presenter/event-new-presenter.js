@@ -21,9 +21,9 @@ export default class EventNewPresenter {
       return;
     }
 
-    this.#editFormComponent = new NewEditFormView();
+    this.#editFormComponent = new NewEditFormView({isAddForm: true});
     this.#editFormComponent.setSaveClickHandler(this.#handleSaveClick);
-    /* add set cancel click handler */
+    this.#editFormComponent.setCancelClickHandler(this.#handleCancelClick);
 
     render(this.#editFormComponent, this.#eventListContainer, RenderPosition.AFTERBEGIN);
 
