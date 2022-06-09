@@ -1,7 +1,8 @@
 import {render, remove, RenderPosition} from '../framework/render';
 import NewEditFormView from '../view/edit-form-view';
-import {UpdateType, UserAction} from '../const';
+import {UpdateType, UserAction, DESTINATIONS} from '../const';
 import {nanoid} from 'nanoid';
+import {hasData} from '../utils/utils';
 
 export default class EventNewPresenter {
   #eventListContainer = null;
@@ -44,6 +45,13 @@ export default class EventNewPresenter {
   };
 
   #handleSaveClick = (event) => {
+    const hasDestination = hasData(event.destination, DESTINATIONS);
+
+    if (!hasDestination) {
+      /*console.log('No such kind of destination');*/
+      return;/* make proper error message */
+    }
+
     this.#changeData(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,

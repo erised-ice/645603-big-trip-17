@@ -66,19 +66,23 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
     </section>` : ''}`
   );
 
-  const createDestinationTemplate = (destinationData) => (
-    `${destinationData !== '' ?
-      `<section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${eventDestination.description}</p>
+  const createDestinationTemplate = (destinationData) => {
+    const hasDestination = destinationsArray.some((item) => item.name.toLowerCase() === destinationData.toLowerCase());
 
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-          ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
+    return hasDestination ? (
+      `${destinationData !== '' ?
+        `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${eventDestination.description}</p>
+
+          <div class="event__photos-container">
+            <div class="event__photos-tape">
+            ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
+            </div>
           </div>
-        </div>
-      </section>` : '' }`
-  );
+        </section>` : ''}`
+    ) : '';
+  };
 
   const typesTemplate = createTypeEditTemplate(type);
   const destinationsList = createDestinationsListTemplate();
@@ -127,7 +131,7 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -278,9 +282,18 @@ export default class NewEditFormView extends AbstractStatefulView {
     );
   };
 
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      basePrice: evt.target.value,
+    });
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceInputHandler);
   };
 
   #formDeleteClickHandler = (evt) => {

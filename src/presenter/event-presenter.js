@@ -1,7 +1,8 @@
 import {render, replace, remove} from '../framework/render';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
-import {UpdateType, UserAction} from '../const';
+import {UpdateType, UserAction, DESTINATIONS} from '../const';
+import {hasData} from '../utils/utils';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -103,6 +104,13 @@ export default class EventPresenter {
   #handleSaveClick = (update) => {
     const isMinorUpdate =
       this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo;
+    const hasDestination = hasData(update.destination, DESTINATIONS);
+
+    if (!hasDestination) {
+      /*console.log('No such kind of destination');*/
+      /* make proper error message */
+      return;
+    }
 
     this.#changeData(
       UserAction.UPDATE_EVENT,
