@@ -54,8 +54,8 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
       return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${checked}>
-          <label class="event__offer-label" for="event-offer-meal-1">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-${item.id}" type="checkbox" name="event-offer-meal" ${checked} value="${item.id}">
+          <label class="event__offer-label" for="event-offer-meal-${item.id}">
             <span class="event__offer-title">${item.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${item.price}</span>
@@ -240,6 +240,7 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
+    /*проверка*/
     this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
@@ -289,11 +290,26 @@ export default class NewEditFormView extends AbstractStatefulView {
     });
   };
 
+  #offersChangeHandler = (evt) => {
+    const value = Number(evt.target.value);
+
+    if (this._state.offers.includes(value)) {
+      this._state.offers = this._state.offers.filter((id) => id !== value);
+    } else {
+      this._state.offers.push(value);
+    }
+
+    this.updateElement({
+      offers: this._state.offers
+    });
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
   };
 
   #formDeleteClickHandler = (evt) => {
