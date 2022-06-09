@@ -11,11 +11,11 @@ const BLANK_EVENT = {
   dateFrom: '0',
   dateTo: '0',
   destination: '',
-  offers: null,
-  type: '',
+  offers: [],
+  type: 'bus'
 };
 
-const createNewEditFormViewTemplate = (data) => {
+const createNewEditFormViewTemplate = (data, isAddForm) => {
   const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
@@ -54,8 +54,8 @@ const createNewEditFormViewTemplate = (data) => {
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
       return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal" ${checked}>
-          <label class="event__offer-label" for="event-offer-meal-1">
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-${item.id}" type="checkbox" name="event-offer-meal" ${checked} value="${item.id}">
+          <label class="event__offer-label" for="event-offer-meal-${item.id}">
             <span class="event__offer-title">${item.title}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${item.price}</span>
@@ -66,19 +66,23 @@ const createNewEditFormViewTemplate = (data) => {
     </section>` : ''}`
   );
 
-  const createDestinationTemplate = (destinationData) => (
-    `${destinationData !== '' ?
-      `<section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${eventDestination.description}</p>
+  const createDestinationTemplate = (destinationData) => {
+    const hasDestination = destinationsArray.some((item) => item.name.toLowerCase() === destinationData.toLowerCase());
 
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-          ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
+    return hasDestination ? (
+      `${destinationData !== '' ?
+        `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${eventDestination.description}</p>
+
+          <div class="event__photos-container">
+            <div class="event__photos-tape">
+            ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
+            </div>
           </div>
-        </div>
-      </section>` : '' }`
-  );
+        </section>` : ''}`
+    ) : '';
+  };
 
   const typesTemplate = createTypeEditTemplate(type);
   const destinationsList = createDestinationsListTemplate();
@@ -127,14 +131,16 @@ const createNewEditFormViewTemplate = (data) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
+      ${!isAddForm ? (`
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
-      </button>
+      </button>`
+    ) : ''}
     </header>
     <section class="event__details">
     ${offersTemplate}
@@ -148,9 +154,10 @@ const createNewEditFormViewTemplate = (data) => {
 export default class NewEditFormView extends AbstractStatefulView {
   #datepicker = null;
 
-  constructor(event = BLANK_EVENT) {
+  constructor({event: event = BLANK_EVENT, isAddForm: isAddForm = false}) {
     super();
     this._state = NewEditFormView.parseEventToState(event);
+    this.isAddForm = isAddForm;
 
     this.#setInnerHandlers();
     this.#setDateFromDatepicker();
@@ -158,7 +165,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this._state);
+    return createNewEditFormViewTemplate(this._state, this.isAddForm);
   }
 
   removeElement = () => {
@@ -170,12 +177,29 @@ export default class NewEditFormView extends AbstractStatefulView {
     }
   };
 
+  setDeleteClickHandler = (callback) => {
+    if (!this.isAddForm) {
+      this._callback.deleteClick = callback;
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    }
+  };
+
+  setCancelClickHandler = (callback) => {
+    if (this.isAddForm) {
+      this._callback.cancelClick = callback;
+
+      this.element.querySelector('.cansel-btn').addEventListener('click', this.#formCancelClickHandler);
+    }
+  };
+
   _restoreHandlers = () => {
     this.#setInnerHandlers();
     this.#setDateFromDatepicker();
     this.#setDateToDatepicker();
     this.setCloseArrowClickHandler(this._callback.arrowClick);
     this.setSaveClickHandler(this._callback.saveClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setCancelClickHandler(this._callback.cancelClick);
   };
 
   #eventTypeChangeHandler = (evt) => {
@@ -192,8 +216,10 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   setCloseArrowClickHandler = (callback) => {
-    this._callback.arrowClick = callback;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+    if (!this.isAddForm) {
+      this._callback.arrowClick = callback;
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#arrowClickHandler);
+    }
   };
 
   reset = (event) => {
@@ -214,6 +240,7 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
+    /*проверка*/
     this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
@@ -256,9 +283,43 @@ export default class NewEditFormView extends AbstractStatefulView {
     );
   };
 
+  #priceInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      basePrice: evt.target.value,
+    });
+  };
+
+  #offersChangeHandler = (evt) => {
+    const value = Number(evt.target.value);
+
+    if (this._state.offers.includes(value)) {
+      this._state.offers = this._state.offers.filter((id) => id !== value);
+    } else {
+      this._state.offers.push(value);
+    }
+
+    this.updateElement({
+      offers: this._state.offers
+    });
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceInputHandler);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+  };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(NewEditFormView.parseStateToEvent(this._state));
+  };
+
+  #formCancelClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.cancelClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event});

@@ -1,6 +1,8 @@
 import {render, replace, remove} from '../framework/render';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
+import {UpdateType, UserAction, DESTINATIONS} from '../const';
+import {hasData} from '../utils/utils';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -31,12 +33,13 @@ export default class EventPresenter {
     const prevEditFormComponent = this.#editFormComponent;
 
     this.#eventComponent = new NewEventView(event);
-    this.#editFormComponent = new NewEditFormView(event);
+    this.#editFormComponent = new NewEditFormView({event});
 
     this.#eventComponent.setOpenArrowClickHandler(this.#handleOpenArrowClick);
     this.#eventComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
     this.#editFormComponent.setCloseArrowClickHandler(this.#handleCloseArrowClick);
     this.#editFormComponent.setSaveClickHandler(this.#handleSaveClick);
+    this.#editFormComponent.setDeleteClickHandler(this.#handleDeleteClick);
 
     if (prevEventComponent === null || prevEditFormComponent === null) {
       render(this.#eventComponent, this.#eventListContainer);
@@ -98,12 +101,39 @@ export default class EventPresenter {
     this.#replaceFormToEvent();
   };
 
-  #handleSaveClick = (event) => {
-    this.#changeData(event);
+  #handleSaveClick = (update) => {
+    const isMinorUpdate =
+      this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo;
+    const hasDestination = hasData(update.destination, DESTINATIONS);
+
+    if (!hasDestination) {
+      /*console.log('No such kind of destination');*/
+      /* make proper error message */
+      return;
+    }
+
+    this.#changeData(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update
+    );
+
     this.#replaceFormToEvent();
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#changeData(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#changeData(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event,
+    );
   };
 }

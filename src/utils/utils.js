@@ -23,4 +23,6 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-export {humanizeDate, datesDiff, setDurationFormat, getRandomInteger};
+const hasData = (checkedData, array) => array.some((item) => item.toLowerCase() === checkedData.toLowerCase());
+
+export {humanizeDate, datesDiff, setDurationFormat, getRandomInteger, hasData};
