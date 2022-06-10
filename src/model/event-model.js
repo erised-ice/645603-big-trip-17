@@ -1,12 +1,26 @@
 import Observable from '../framework/observable';
-import {generateEvent} from '../mock/event';
 
 export default class EventModel extends Observable {
-  #events = Array.from({length: 10}, generateEvent);
+  #pointsApiService = null;
+  #events = [];
+
+  constructor(pointsApiService) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get events() {
     return this.#events;
   }
+
+  init = async () => {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#events = points.map(this.#adaptToClient);
+    } catch(err) {
+      this.#events = [];
+    }
+  };
 
   updateEvent = (updateType, update) => {
     const index = this.#events.findIndex((event) => event.id === update.id);
@@ -46,5 +60,21 @@ export default class EventModel extends Observable {
     ];
 
     this._notify(updateType);
+  };
+
+  #adaptToClient = (point) => {
+    const adaptedPoint = {...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite']
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   };
 }
