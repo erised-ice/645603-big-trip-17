@@ -12,6 +12,8 @@ import {SortType, UpdateType, UserAction, FilterType} from '../const';
 export default class EventsListPresenter {
   #eventsListContainer = null;
   #eventModel = null;
+  #offersModel = null;
+  #destinationsModel = null;
   #filterModel = null;
   #sorts = generateSort();
 
@@ -23,14 +25,18 @@ export default class EventsListPresenter {
   #sortComponent = null;
   #filterType = FilterType.EVERY;
 
-  constructor(eventsListContainer, eventModel, filterModel) {
+  constructor(eventsListContainer, eventModel, offersModel, destinationsModel, filterModel) {
     this.#eventsListContainer = eventsListContainer;
     this.#eventModel = eventModel;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
     this.#filterModel = filterModel;
 
-    this.#eventNewPresenter = new EventNewPresenter(this.#eventsListComponent.element, this.#handleViewAction);
+    this.#eventNewPresenter = new EventNewPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#offersModel, this.#destinationsModel);
 
     this.#eventModel.addObserver(this.#handleModelEvent);
+    this.#offersModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
@@ -93,11 +99,15 @@ export default class EventsListPresenter {
         this.#clearEvents({resetSortType: true});
         this.#renderEvents();
         break;
+      case UpdateType.INIT:
+        this.#clearEvents();
+        this.#renderEvents();
+        break;
     }
   };
 
   #renderEvent = (event) => {
-    const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange);
+    const eventPresenter = new EventPresenter(this.#eventsListComponent.element, this.#handleViewAction, this.#handleModeChange, this.#offersModel, this.#destinationsModel);
     eventPresenter.init(event);
     this.#eventPresenter.set(event.id, eventPresenter);
   };

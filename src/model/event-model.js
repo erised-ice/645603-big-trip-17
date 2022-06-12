@@ -1,25 +1,26 @@
 import Observable from '../framework/observable';
+import {UpdateType} from '../const';
 
 export default class EventModel extends Observable {
   #pointsApiService = null;
   #events = [];
 
-  constructor(pointsApiService) {
+  constructor() {
     super();
-    this.#pointsApiService = pointsApiService;
   }
 
   get events() {
     return this.#events;
   }
 
-  init = async () => {
+  init = (points) => {
     try {
-      const points = await this.#pointsApiService.points;
       this.#events = points.map(this.#adaptToClient);
     } catch(err) {
       this.#events = [];
     }
+
+    //this._notify(UpdateType.INIT);
   };
 
   updateEvent = (updateType, update) => {
@@ -67,7 +68,7 @@ export default class EventModel extends Observable {
       basePrice: point['base_price'],
       dateFrom: point['date_from'],
       dateTo: point['date_to'],
-      isFavorite: point['is_favorite']
+      isFavorite: point['is_favorite'],
     };
 
     delete adaptedPoint['base_price'];

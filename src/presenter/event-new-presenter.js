@@ -1,18 +1,21 @@
 import {render, remove, RenderPosition} from '../framework/render';
 import NewEditFormView from '../view/edit-form-view';
-import {UpdateType, UserAction, DESTINATIONS} from '../const';
+import {UpdateType, UserAction} from '../const';
 import {nanoid} from 'nanoid';
-import {hasData} from '../utils/utils';
 
 export default class EventNewPresenter {
   #eventListContainer = null;
   #changeData = null;
+  #offersModel = null;
+  #destinationsModel = null;
   #editFormComponent = null;
   #destroyCallback = null;
 
-  constructor(eventListContainer, changeData) {
+  constructor(eventListContainer, changeData, offersModel, destinationsModel) {
     this.#eventListContainer = eventListContainer;
     this.#changeData = changeData;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   init = (callback) => {
@@ -21,9 +24,10 @@ export default class EventNewPresenter {
     if (this.#editFormComponent !== null) {
       return;
     }
+    this.#editFormComponent = new NewEditFormView({isAddForm: true}, this.#offersModel.offers, this.#destinationsModel.destinations);
 
-    this.#editFormComponent = new NewEditFormView({isAddForm: true});
     this.#editFormComponent.setSaveClickHandler(this.#handleSaveClick);
+
     this.#editFormComponent.setCancelClickHandler(this.#handleCancelClick);
 
     render(this.#editFormComponent, this.#eventListContainer, RenderPosition.AFTERBEGIN);
@@ -45,13 +49,6 @@ export default class EventNewPresenter {
   };
 
   #handleSaveClick = (event) => {
-    const hasDestination = hasData(event.destination, DESTINATIONS);
-
-    if (!hasDestination) {
-      /*console.log('No such kind of destination');*/
-      return;/* make proper error message */
-    }
-
     this.#changeData(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
