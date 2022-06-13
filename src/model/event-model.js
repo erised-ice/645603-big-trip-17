@@ -1,12 +1,12 @@
 import Observable from '../framework/observable';
-import {UpdateType} from '../const';
 
 export default class EventModel extends Observable {
   #pointsApiService = null;
   #events = [];
 
-  constructor() {
+  constructor(pointsApiService) {
     super();
+    this.#pointsApiService = pointsApiService;
   }
 
   get events() {
@@ -19,24 +19,27 @@ export default class EventModel extends Observable {
     } catch(err) {
       this.#events = [];
     }
-
-    //this._notify(UpdateType.INIT);
   };
 
-  updateEvent = (updateType, update) => {
+  updatePoint = async (updateType, update) => {
     const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting event');
     }
 
-    this.#events = [
-      ...this.#events.slice(0, index),
-      update,
-      ...this.#events.slice(index + 1),
-    ];
-
-    this._notify(updateType, update);
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedEvent = this.#adaptToClient(response);
+      this.#events = [
+        ...this.#events.slice(0, index),
+        updatedEvent,
+        ...this.#events.slice(index + 1),
+      ];
+      this._notify(updateType, updatedEvent);
+    } catch(err) {
+      throw new Error('Can\'t update event');
+    }
   };
 
   addEvent = (updateType, update) => {

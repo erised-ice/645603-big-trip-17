@@ -5,14 +5,15 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
-  basePrice: '',
+  basePrice: 1,
   dateFrom: '0',
   dateTo: '0',
   destination: {
     name: ''
   },
   offers: [],
-  type: 'bus'
+  type: 'bus',
+  isFavorite: false
 };
 
 const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destinationsArray) => {
@@ -212,11 +213,14 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    this.updateElement({
-      destination: {
-        name: evt.target.value
-      },
-    });
+    const updatedDestination = this.#destinations.find(
+      (item) => item.name === evt.target.value);
+
+    if (updatedDestination) {
+      this.updateElement({
+        destination: updatedDestination
+      });
+    }
   };
 
   setCloseArrowClickHandler = (callback) => {
@@ -244,7 +248,6 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    /*проверка*/
     this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
@@ -290,7 +293,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   #priceInputHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      basePrice: evt.target.value,
+      basePrice: Number(evt.target.value),
     });
   };
 

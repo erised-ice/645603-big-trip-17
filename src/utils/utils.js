@@ -16,6 +16,4 @@ const setDurationFormat = (numberInSeconds) => {
   return `${days !== 0 ? `${formatNumber(days)}D ` : ''}${days === 0 && hours === 0 ? '' : `${formatNumber(hours)}H `}${days === 0 && hours === 0 && minutes === 0 ? '' : `${formatNumber(minutes)}M `}`;
 };
 
-const hasData = (checkedData, array) => array.some((item) => item.toLowerCase() === checkedData.toLowerCase());
-
-export {humanizeDate, datesDiff, setDurationFormat, hasData};
+export {humanizeDate, datesDiff, setDurationFormat};

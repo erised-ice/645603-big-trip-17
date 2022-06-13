@@ -1,6 +1,7 @@
 import {remove, render, RenderPosition} from '../framework/render';
 import NewTripEventsListView from '../view/trip-events-list-view';
 import NoEventsView from '../view/no-events-view';
+import LoadingView from '../view/loading-view';
 import EventPresenter from './event-presenter';
 import EventNewPresenter from './event-new-presenter';
 import NewSortView from '../view/sort-view';
@@ -19,11 +20,13 @@ export default class EventsListPresenter {
 
   #eventsListComponent = new NewTripEventsListView();
   #noEventsComponent = null;
+  #loadingComponent = new LoadingView();
   #eventPresenter = new Map();
   #eventNewPresenter = null;
   #activeSort = SortType.DAY;
   #sortComponent = null;
   #filterType = FilterType.EVERY;
+  #isLoading = true;
 
   constructor(eventsListContainer, eventModel, offersModel, destinationsModel, filterModel) {
     this.#eventsListContainer = eventsListContainer;
@@ -75,7 +78,7 @@ export default class EventsListPresenter {
   #handleViewAction = (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#eventModel.updateEvent(updateType, update);
+        this.#eventModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_EVENT:
         this.#eventModel.addEvent(updateType, update);
@@ -100,6 +103,8 @@ export default class EventsListPresenter {
         this.#renderEvents();
         break;
       case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
         this.#clearEvents();
         this.#renderEvents();
         break;
@@ -115,6 +120,10 @@ export default class EventsListPresenter {
   #renderNoEvents = () => {
     this.#noEventsComponent = new NoEventsView(this.#filterType);
     render(this.#noEventsComponent, this.#eventsListComponent.element);
+  };
+
+  #renderLoading = () => {
+    render(this.#loadingComponent, this.#eventsListComponent.element);
   };
 
   #handleSortTypeChange = (sortType) => {
@@ -140,6 +149,7 @@ export default class EventsListPresenter {
     this.#eventPresenter.clear();
 
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noEventsComponent) {
       remove(this.#noEventsComponent);
@@ -152,6 +162,11 @@ export default class EventsListPresenter {
 
   #renderEvents = () => {
     render(this.#eventsListComponent, this.#eventsListContainer);
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if (this.events.length === 0) {
       this.#renderNoEvents();

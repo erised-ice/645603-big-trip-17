@@ -14,28 +14,24 @@ import DestinationsModel from './model/destinations-model';
 const AUTHORIZATION = 'Basic ssd2fS11s33fjKJhu';
 const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
 
-const siteMainElement = document.querySelector('.trip-main');
-const siteEventsElement = document.querySelector('.trip-events');
-const siteControlsElement = siteMainElement.querySelector('.trip-controls');
-const siteFiltersElement = siteControlsElement.querySelector('.trip-controls__filters');
-const eventModel = new EventModel();
-const offersModel = new OffersModel();
-const destinationsModel = new DestinationsModel();
-const filterModel = new FilterModel();
-const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, offersModel, destinationsModel, filterModel);
-const tripInfoPresenter = new TripInfoPresenter;
-const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
-const newEventButtonComponent = new NewEventButtonView();
-
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
 const offersApiService = new OffersApiService(END_POINT, AUTHORIZATION);
 const destinationsApiService = new DestinationsApiService(END_POINT, AUTHORIZATION);
 
-Promise.all([pointsApiService.points, offersApiService.offers, destinationsApiService.destinations]).then((data) => {
-  eventModel.init(data[0]);
-  offersModel.init(data[1]);
-  destinationsModel.init(data[2]);
-});
+const siteMainElement = document.querySelector('.trip-main');
+const siteEventsElement = document.querySelector('.trip-events');
+const siteControlsElement = siteMainElement.querySelector('.trip-controls');
+const siteFiltersElement = siteControlsElement.querySelector('.trip-controls__filters');
+
+const eventModel = new EventModel(pointsApiService);
+const offersModel = new OffersModel();
+const destinationsModel = new DestinationsModel();
+const filterModel = new FilterModel();
+
+const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, offersModel, destinationsModel, filterModel);
+const tripInfoPresenter = new TripInfoPresenter;
+const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
+const newEventButtonComponent = new NewEventButtonView();
 
 const handleNewEventFormClose = () => {
   newEventButtonComponent.element.disabled = false;
@@ -46,9 +42,15 @@ const handleNewEventButtonClick = () => {
   newEventButtonComponent.element.disabled = true;
 };
 
-render(newEventButtonComponent, siteMainElement);
-newEventButtonComponent.setClickHandler(handleNewEventButtonClick);
+Promise.all([pointsApiService.points, offersApiService.offers, destinationsApiService.destinations]).then((data) => {
+  eventModel.init(data[0]);
+  offersModel.init(data[1]);
+  destinationsModel.init(data[2]);
+
+  render(newEventButtonComponent, siteMainElement);
+  newEventButtonComponent.setClickHandler(handleNewEventButtonClick);
+  filterPresenter.init();
+});
 
 tripInfoPresenter.init(siteMainElement);
-filterPresenter.init();
 eventsListPresenter.init();
