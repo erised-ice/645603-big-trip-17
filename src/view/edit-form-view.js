@@ -1,31 +1,29 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import {generateOffers} from '../mock/offers';
-import {generateDestinations} from '../mock/destinations';
 import {humanizeDate} from '../utils/utils';
 import {TYPES} from '../const';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
-  basePrice: '',
+  basePrice: 1,
   dateFrom: '0',
   dateTo: '0',
-  destination: '',
+  destination: {
+    name: ''
+  },
   offers: [],
-  type: 'bus'
+  type: 'bus',
+  isFavorite: false
 };
 
-const createNewEditFormViewTemplate = (data, isAddForm) => {
+const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destinationsArray) => {
   const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
 
-  const offersArray = generateOffers();
-
-  const destinationsArray = generateDestinations();
   const eventDestination = destinationsArray.find(
-    (item) => item.name === data.destination);
+    (item) => item.name === data.destination.name);
 
   const createTypeEditTemplate = (currentType) => TYPES.map((eventType) => (
     `<div class="event__type-item">
@@ -49,7 +47,7 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-        ${offersArray.find((offer) => offer.type === data.type).offers.map((item) => {
+        ${offersDataArray.find((offer) => offer.type === data.type).offers.map((item) => {
 
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
@@ -74,12 +72,13 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
         `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">${eventDestination.description}</p>
-
-          <div class="event__photos-container">
+          ${eventDestination.pictures.length > 0 ? (
+        `<div class="event__photos-container">
             <div class="event__photos-tape">
-            ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
+              ${eventDestination.pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
             </div>
-          </div>
+          </div>`
+      ) : ''}
         </section>` : ''}`
     ) : '';
   };
@@ -87,7 +86,7 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
   const typesTemplate = createTypeEditTemplate(type);
   const destinationsList = createDestinationsListTemplate();
   const offersTemplate = createOffersTemplate(offers);
-  const destinationTemplate = createDestinationTemplate(destination);
+  const destinationTemplate = createDestinationTemplate(destination.name);
 
   return (`
 <li class="trip-events__item">
@@ -112,7 +111,7 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${destinationsList}
         </datalist>
@@ -153,11 +152,15 @@ const createNewEditFormViewTemplate = (data, isAddForm) => {
 
 export default class NewEditFormView extends AbstractStatefulView {
   #datepicker = null;
+  #offers = [];
+  #destinations = [];
 
-  constructor({event: event = BLANK_EVENT, isAddForm: isAddForm = false}) {
+  constructor({event: event = BLANK_EVENT, isAddForm: isAddForm = false}, offers, destinations) {
     super();
     this._state = NewEditFormView.parseEventToState(event);
     this.isAddForm = isAddForm;
+    this.#offers = offers;
+    this.#destinations = destinations;
 
     this.#setInnerHandlers();
     this.#setDateFromDatepicker();
@@ -165,7 +168,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this._state, this.isAddForm);
+    return createNewEditFormViewTemplate(this._state, this.isAddForm, this.#offers, this.#destinations);
   }
 
   removeElement = () => {
@@ -210,9 +213,14 @@ export default class NewEditFormView extends AbstractStatefulView {
   };
 
   #destinationChangeHandler = (evt) => {
-    this.updateElement({
-      destination: evt.target.value,
-    });
+    const updatedDestination = this.#destinations.find(
+      (item) => item.name === evt.target.value);
+
+    if (updatedDestination) {
+      this.updateElement({
+        destination: updatedDestination
+      });
+    }
   };
 
   setCloseArrowClickHandler = (callback) => {
@@ -240,7 +248,6 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    /*проверка*/
     this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
@@ -286,7 +293,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   #priceInputHandler = (evt) => {
     evt.preventDefault();
     this._setState({
-      basePrice: evt.target.value,
+      basePrice: Number(evt.target.value),
     });
   };
 

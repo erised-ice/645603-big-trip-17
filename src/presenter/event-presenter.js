@@ -1,8 +1,7 @@
 import {render, replace, remove} from '../framework/render';
 import NewEventView from '../view/event-view';
 import NewEditFormView from '../view/edit-form-view';
-import {UpdateType, UserAction, DESTINATIONS} from '../const';
-import {hasData} from '../utils/utils';
+import {UpdateType, UserAction} from '../const';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -16,14 +15,18 @@ export default class EventPresenter {
 
   #eventComponent = null;
   #editFormComponent = null;
+  #offersModel = null;
+  #destinationsModel = null;
 
   #event = null;
   #mode = Mode.DEFAULT;
 
-  constructor(eventListContainer, changeData, changeMode) {
+  constructor(eventListContainer, changeData, changeMode, offersModel, destinationsModel) {
     this.#eventListContainer = eventListContainer;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
   }
 
   init = (event) => {
@@ -32,8 +35,8 @@ export default class EventPresenter {
     const prevEventComponent = this.#eventComponent;
     const prevEditFormComponent = this.#editFormComponent;
 
-    this.#eventComponent = new NewEventView(event);
-    this.#editFormComponent = new NewEditFormView({event});
+    this.#eventComponent = new NewEventView(event, this.#offersModel.offers);
+    this.#editFormComponent = new NewEditFormView({event}, this.#offersModel.offers, this.#destinationsModel.destinations);
 
     this.#eventComponent.setOpenArrowClickHandler(this.#handleOpenArrowClick);
     this.#eventComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
@@ -104,13 +107,6 @@ export default class EventPresenter {
   #handleSaveClick = (update) => {
     const isMinorUpdate =
       this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo;
-    const hasDestination = hasData(update.destination, DESTINATIONS);
-
-    if (!hasDestination) {
-      /*console.log('No such kind of destination');*/
-      /* make proper error message */
-      return;
-    }
 
     this.#changeData(
       UserAction.UPDATE_EVENT,
