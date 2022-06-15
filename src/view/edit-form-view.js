@@ -17,7 +17,17 @@ const BLANK_EVENT = {
 };
 
 const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destinationsArray) => {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
+  const {
+    basePrice,
+    dateFrom,
+    dateTo,
+    destination,
+    offers,
+    type,
+    isDisabled,
+    isSaving,
+    isDeleting,
+  } = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
@@ -25,7 +35,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   const eventDestination = destinationsArray.find(
     (item) => item.name === data.destination.name);
 
-  const createTypeEditTemplate = (currentType) => TYPES.map((eventType) => (
+  const createTypeEditTemplate = (currentType, isDisabledElement) => TYPES.map((eventType) => (
     `<div class="event__type-item">
       <input
         id="event-type-${eventType}-1"
@@ -34,6 +44,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
         name="event-type"
         value="${eventType}"
         ${currentType === eventType ? 'checked' : ''}
+        ${isDisabledElement ? 'disabled' : ''}
       >
       <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
     </div>`)
@@ -42,7 +53,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   const createDestinationsListTemplate = () => (
     destinationsArray.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
 
-  const createOffersTemplate = (offersData) => (
+  const createOffersTemplate = (offersData, isDisabledElement) => (
     `${offersData !== null ? `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
@@ -52,7 +63,14 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
       return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-${item.id}" type="checkbox" name="event-offer-meal" ${checked} value="${item.id}">
+          <input
+            class="event__offer-checkbox  visually-hidden"
+            id="event-offer-meal-${item.id}"
+            type="checkbox" name="event-offer-meal"
+            ${checked}
+            value="${item.id}"
+            ${isDisabledElement ? 'disabled' : ''}
+          >
           <label class="event__offer-label" for="event-offer-meal-${item.id}">
             <span class="event__offer-title">${item.title}</span>
             &plus;&euro;&nbsp;
@@ -83,10 +101,11 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
     ) : '';
   };
 
-  const typesTemplate = createTypeEditTemplate(type);
+  const typesTemplate = createTypeEditTemplate(type, isDisabled);
   const destinationsList = createDestinationsListTemplate();
-  const offersTemplate = createOffersTemplate(offers);
+  const offersTemplate = createOffersTemplate(offers, isDisabled);
   const destinationTemplate = createDestinationTemplate(destination.name);
+  const deleteText = isDeleting ? 'deleting...' : 'delete';
 
   return (`
 <li class="trip-events__item">
@@ -133,8 +152,20 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
         <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
+      <button
+        class="event__save-btn btn btn--blue"
+        type="submit"
+        ${isDisabled ? 'disabled' : ''}
+      >
+        ${isSaving ? 'saving...' : 'save'}
+      </button>
+      <button
+        class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}"
+        type="reset"
+        ${isDisabled ? 'disabled' : ''}
+      >
+        ${isAddForm ? 'Cancel' : deleteText}
+      </button>
       ${!isAddForm ? (`
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -329,10 +360,18 @@ export default class NewEditFormView extends AbstractStatefulView {
     this._callback.cancelClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
-  static parseEventToState = (event) => ({...event});
+  static parseEventToState = (event) => ({...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+  });
 
   static parseStateToEvent = (state) => {
     const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
     return event;
   };
