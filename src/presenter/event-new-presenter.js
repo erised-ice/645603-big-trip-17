@@ -54,7 +54,7 @@ export default class EventNewPresenter {
     });
   };
 
-  /*setAborting = () => {
+  setAborting = () => {
     const resetFormState = () => {
       this.#editFormComponent.updateElement({
         isDisabled: false,
@@ -64,7 +64,7 @@ export default class EventNewPresenter {
     };
 
     this.#editFormComponent.shake(resetFormState);
-  };*/
+  };
 
   #handleSaveClick = (event) => {
     this.#changeData(

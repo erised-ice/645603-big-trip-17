@@ -75,19 +75,31 @@ export default class EventsListPresenter {
     this.#eventPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenter.get(update.id).setSaving();
-        this.#eventModel.updatePoint(updateType, update);
+        try {
+          await this.#eventModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
         this.#eventNewPresenter.setSaving();
-        this.#eventModel.addEvent(updateType, update);
+        try {
+          await this.#eventModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#eventNewPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
         this.#eventPresenter.get(update.id).setDeleting();
-        this.#eventModel.deleteEvent(updateType, update);
+        try {
+          await this.#eventModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
     }
   };

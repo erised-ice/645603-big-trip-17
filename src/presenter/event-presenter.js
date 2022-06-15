@@ -92,7 +92,7 @@ export default class EventPresenter {
     }
   };
 
-  /*setAborting = () => {
+  setAborting = () => {
     if (this.#mode === Mode.DEFAULT) {
       this.#eventComponent.shake();
       return;
@@ -107,7 +107,7 @@ export default class EventPresenter {
     };
 
     this.#editFormComponent.shake(resetFormState);
-  };*/
+  };
 
   #replaceEventToForm = () => {
     replace(this.#editFormComponent, this.#eventComponent);
