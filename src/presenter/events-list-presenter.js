@@ -9,6 +9,12 @@ import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
 import {filter} from '../utils/filter';
 import {SortType, UpdateType, UserAction, FilterType} from '../const';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
@@ -27,6 +33,7 @@ export default class EventsListPresenter {
   #sortComponent = null;
   #filterType = FilterType.EVERY;
   #isLoading = true;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   constructor(eventsListContainer, eventModel, offersModel, destinationsModel, filterModel) {
     this.#eventsListContainer = eventsListContainer;
@@ -76,6 +83,8 @@ export default class EventsListPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenter.get(update.id).setSaving();
@@ -102,6 +111,8 @@ export default class EventsListPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
