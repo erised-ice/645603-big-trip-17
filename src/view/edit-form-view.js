@@ -32,6 +32,9 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
 
+  const eventOffer = offersDataArray.find(
+    (item) => item.type === data.type);
+
   const eventDestination = destinationsArray.find(
     (item) => item.name === data.destination.name);
 
@@ -54,7 +57,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
     destinationsArray.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
 
   const createOffersTemplate = (offersData, isDisabledElement) => (
-    `${offersData !== null ? `<section class="event__section  event__section--offers">
+    `${eventOffer.offers.length > 0 ? `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
@@ -347,7 +350,9 @@ export default class NewEditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
-    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    if(this.element.querySelector('.event__available-offers')) {
+      this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    }
   };
 
   #formDeleteClickHandler = (evt) => {
