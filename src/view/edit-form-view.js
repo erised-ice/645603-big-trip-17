@@ -250,6 +250,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   #destinationChangeHandler = (evt) => {
     const updatedDestination = this.#destinations.find(
       (item) => item.name === evt.target.value);
+    this._state.destinationName = evt.target.value;
 
     if (updatedDestination) {
       this.updateElement({
@@ -283,10 +284,13 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    if (this.#destinations.includes(this._state.destination)) {
+    const hasDestination = this.#destinations.some((item) => item.name.toLowerCase() === this._state.destinationName.toLowerCase());
+
+    if (hasDestination) {
       this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
       return;
     }
+
     this.shake();
   };
 
@@ -374,6 +378,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     isDisabled: false,
     isSaving: false,
     isDeleting: false,
+    destinationName: event.destination.name
   });
 
   static parseStateToEvent = (state) => {
@@ -382,6 +387,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     delete event.isDisabled;
     delete event.isSaving;
     delete event.isDeleting;
+    delete event.destinationName;
 
     return event;
   };
