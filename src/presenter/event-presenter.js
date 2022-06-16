@@ -142,7 +142,7 @@ export default class EventPresenter {
 
   #handleSaveClick = (update) => {
     const isMinorUpdate =
-      this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo;
+      this.#event.dateFrom !== update.dateFrom || this.#event.dateTo !== update.dateTo || this.#event.basePrice !== update.basePrice;
 
     this.#changeData(
       UserAction.UPDATE_EVENT,
