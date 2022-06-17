@@ -17,15 +17,28 @@ const BLANK_EVENT = {
 };
 
 const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destinationsArray) => {
-  const {basePrice, dateFrom, dateTo, destination, offers, type} = data;
+  const {
+    basePrice,
+    dateFrom,
+    dateTo,
+    destination,
+    offers,
+    type,
+    isDisabled,
+    isSaving,
+    isDeleting,
+  } = data;
 
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
 
+  const eventOffer = offersDataArray.find(
+    (item) => item.type === data.type);
+
   const eventDestination = destinationsArray.find(
     (item) => item.name === data.destination.name);
 
-  const createTypeEditTemplate = (currentType) => TYPES.map((eventType) => (
+  const createTypeEditTemplate = (currentType, isDisabledElement) => TYPES.map((eventType) => (
     `<div class="event__type-item">
       <input
         id="event-type-${eventType}-1"
@@ -34,6 +47,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
         name="event-type"
         value="${eventType}"
         ${currentType === eventType ? 'checked' : ''}
+        ${isDisabledElement ? 'disabled' : ''}
       >
       <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
     </div>`)
@@ -42,8 +56,8 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   const createDestinationsListTemplate = () => (
     destinationsArray.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
 
-  const createOffersTemplate = (offersData) => (
-    `${offersData !== null ? `<section class="event__section  event__section--offers">
+  const createOffersTemplate = (offersData, isDisabledElement) => (
+    `${eventOffer.offers.length > 0 ? `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
@@ -52,7 +66,14 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
       return `<div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-${item.id}" type="checkbox" name="event-offer-meal" ${checked} value="${item.id}">
+          <input
+            class="event__offer-checkbox  visually-hidden"
+            id="event-offer-meal-${item.id}"
+            type="checkbox" name="event-offer-meal"
+            ${checked}
+            value="${item.id}"
+            ${isDisabledElement ? 'disabled' : ''}
+          >
           <label class="event__offer-label" for="event-offer-meal-${item.id}">
             <span class="event__offer-title">${item.title}</span>
             &plus;&euro;&nbsp;
@@ -83,10 +104,11 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
     ) : '';
   };
 
-  const typesTemplate = createTypeEditTemplate(type);
+  const typesTemplate = createTypeEditTemplate(type, isDisabled);
   const destinationsList = createDestinationsListTemplate();
-  const offersTemplate = createOffersTemplate(offers);
+  const offersTemplate = createOffersTemplate(offers, isDisabled);
   const destinationTemplate = createDestinationTemplate(destination.name);
+  const deleteText = isDeleting ? 'deleting...' : 'delete';
 
   return (`
 <li class="trip-events__item">
@@ -111,7 +133,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" required>
         <datalist id="destination-list-1">
           ${destinationsList}
         </datalist>
@@ -133,8 +155,20 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
         <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}" type="reset">${isAddForm ? 'Cancel' : 'Delete'}</button>
+      <button
+        class="event__save-btn btn btn--blue"
+        type="submit"
+        ${isDisabled ? 'disabled' : ''}
+      >
+        ${isSaving ? 'saving...' : 'save'}
+      </button>
+      <button
+        class="event__reset-btn${isAddForm ? ' cansel-btn' : ''}"
+        type="reset"
+        ${isDisabled ? 'disabled' : ''}
+      >
+        ${isAddForm ? 'Cancel' : deleteText}
+      </button>
       ${!isAddForm ? (`
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -209,12 +243,14 @@ export default class NewEditFormView extends AbstractStatefulView {
     evt.preventDefault();
     this.updateElement({
       type: evt.target.value,
+      offers: []
     });
   };
 
   #destinationChangeHandler = (evt) => {
     const updatedDestination = this.#destinations.find(
       (item) => item.name === evt.target.value);
+    this._state.destinationName = evt.target.value;
 
     if (updatedDestination) {
       this.updateElement({
@@ -248,7 +284,14 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #saveClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
+    const hasDestination = this.#destinations.some((item) => item.name.toLowerCase() === this._state.destinationName.toLowerCase());
+
+    if (hasDestination) {
+      this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
+      return;
+    }
+
+    this.shake();
   };
 
   #dateFromChangeHandler = ([userDate]) => {
@@ -316,7 +359,9 @@ export default class NewEditFormView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
-    this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    if(this.element.querySelector('.event__available-offers')) {
+      this.element.querySelector('.event__available-offers').addEventListener('change', this.#offersChangeHandler);
+    }
   };
 
   #formDeleteClickHandler = (evt) => {
@@ -329,10 +374,20 @@ export default class NewEditFormView extends AbstractStatefulView {
     this._callback.cancelClick(NewEditFormView.parseStateToEvent(this._state));
   };
 
-  static parseEventToState = (event) => ({...event});
+  static parseEventToState = (event) => ({...event,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
+    destinationName: event.destination.name
+  });
 
   static parseStateToEvent = (state) => {
     const event = {...state};
+
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
+    delete event.destinationName;
 
     return event;
   };

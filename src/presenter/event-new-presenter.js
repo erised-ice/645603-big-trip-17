@@ -1,7 +1,6 @@
 import {render, remove, RenderPosition} from '../framework/render';
 import NewEditFormView from '../view/edit-form-view';
 import {UpdateType, UserAction} from '../const';
-import {nanoid} from 'nanoid';
 
 export default class EventNewPresenter {
   #eventListContainer = null;
@@ -48,14 +47,31 @@ export default class EventNewPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
+  setSaving = () => {
+    this.#editFormComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  };
+
+  setAborting = () => {
+    const resetFormState = () => {
+      this.#editFormComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#editFormComponent.shake(resetFormState);
+  };
+
   #handleSaveClick = (event) => {
     this.#changeData(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      {id: nanoid(), ...event},
+      event,
     );
-
-    this.destroy();
   };
 
   #handleCancelClick = () => {

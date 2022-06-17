@@ -9,6 +9,12 @@ import {generateSort} from '../mock/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
 import {filter} from '../utils/filter';
 import {SortType, UpdateType, UserAction, FilterType} from '../const';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class EventsListPresenter {
   #eventsListContainer = null;
@@ -27,6 +33,7 @@ export default class EventsListPresenter {
   #sortComponent = null;
   #filterType = FilterType.EVERY;
   #isLoading = true;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   constructor(eventsListContainer, eventModel, offersModel, destinationsModel, filterModel) {
     this.#eventsListContainer = eventsListContainer;
@@ -75,18 +82,37 @@ export default class EventsListPresenter {
     this.#eventPresenter.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#eventModel.updatePoint(updateType, update);
+        this.#eventPresenter.get(update.id).setSaving();
+        try {
+          await this.#eventModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
-        this.#eventModel.addEvent(updateType, update);
+        this.#eventNewPresenter.setSaving();
+        try {
+          await this.#eventModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#eventNewPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
-        this.#eventModel.deleteEvent(updateType, update);
+        this.#eventPresenter.get(update.id).setDeleting();
+        try {
+          await this.#eventModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenter.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
