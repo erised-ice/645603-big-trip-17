@@ -29,7 +29,7 @@ const destinationsModel = new DestinationsModel();
 const filterModel = new FilterModel();
 
 const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, offersModel, destinationsModel, filterModel);
-const tripInfoPresenter = new TripInfoPresenter;
+const tripInfoPresenter = new TripInfoPresenter(siteMainElement, eventModel, offersModel);
 const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
 const newEventButtonComponent = new NewEventButtonView();
 
@@ -50,7 +50,7 @@ Promise.all([pointsApiService.points, offersApiService.offers, destinationsApiSe
   render(newEventButtonComponent, siteMainElement);
   newEventButtonComponent.setClickHandler(handleNewEventButtonClick);
   filterPresenter.init();
+  tripInfoPresenter.init();
 });
 
-tripInfoPresenter.init(siteMainElement);
 eventsListPresenter.init();
