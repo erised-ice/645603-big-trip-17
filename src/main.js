@@ -11,7 +11,7 @@ import OffersApiService from './api/offers-api-service';
 import DestinationsApiService from './api/destinations-api-service';
 import DestinationsModel from './model/destinations-model';
 
-const AUTHORIZATION = 'Basic ssd2fS11s33fjKJhu';
+const AUTHORIZATION = 'Basic ssd2fS11s33jKJhu';
 const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
@@ -29,7 +29,7 @@ const destinationsModel = new DestinationsModel();
 const filterModel = new FilterModel();
 
 const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, offersModel, destinationsModel, filterModel);
-const tripInfoPresenter = new TripInfoPresenter;
+const tripInfoPresenter = new TripInfoPresenter(siteMainElement, eventModel, offersModel);
 const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
 const newEventButtonComponent = new NewEventButtonView();
 
@@ -50,7 +50,7 @@ Promise.all([pointsApiService.points, offersApiService.offers, destinationsApiSe
   render(newEventButtonComponent, siteMainElement);
   newEventButtonComponent.setClickHandler(handleNewEventButtonClick);
   filterPresenter.init();
+  tripInfoPresenter.init();
 });
 
-tripInfoPresenter.init(siteMainElement);
 eventsListPresenter.init();
