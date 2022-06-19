@@ -11,7 +11,7 @@ import OffersApiService from './api/offers-api-service';
 import DestinationsApiService from './api/destinations-api-service';
 import DestinationsModel from './model/destinations-model';
 
-const AUTHORIZATION = 'Basic ssd2fS11s33fjKJhu';
+const AUTHORIZATION = 'Basic ssd2fS11s33jKJhu';
 const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);

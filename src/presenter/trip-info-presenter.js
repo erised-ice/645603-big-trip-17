@@ -25,30 +25,39 @@ export default class TripInfoPresenter {
     const lastEvent = eventsByDate[events.length - 1];
     const totalBasePrice = events.reduce((sum, event) => sum + event.basePrice, 0);
 
-    const totalOffersPrice = events.reduce((sum, event) => {
-      const offerByEventType = offers.find((offer) => offer.type === event.type);
+    if (events.length > 0) {
+      const totalOffersPrice = events.reduce((sum, event) => {
+        const offerByEventType = offers.find((offer) => offer.type === event.type);
 
-      if (!offerByEventType) {
-        return sum;
-      }
-
-      event.offers.forEach((offerId) => {
-        const offer = offerByEventType.offers.find((item) => item.id === offerId);
-
-        if (offer) {
-          sum += offer.price;
+        if (!offerByEventType) {
+          return sum;
         }
-      });
 
-      return sum;
-    }, 0);
+        event.offers.forEach((offerId) => {
+          const offer = offerByEventType.offers.find((item) => item.id === offerId);
 
-    return {
-      destinations: eventsByDate.map((item) => item.destination.name),
-      dateFrom: firstEvent.dateFrom,
-      dateTo: lastEvent.dateTo,
-      totalPrice: totalBasePrice + totalOffersPrice
-    };
+          if (offer) {
+            sum += offer.price;
+          }
+        });
+
+        return sum;
+      }, 0);
+
+      return {
+        destinations: eventsByDate.map((item) => item.destination.name),
+        dateFrom: firstEvent.dateFrom,
+        dateTo: lastEvent.dateTo,
+        totalPrice: totalBasePrice + totalOffersPrice
+      };
+    } else {
+      return {
+        destinations: '-',
+        dateFrom: 0,
+        dateTo: 0,
+        totalPrice: 0
+      };
+    }
   }
 
   init = () => {

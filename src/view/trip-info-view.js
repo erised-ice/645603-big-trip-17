@@ -5,11 +5,18 @@ const createTripInfoTemplate = (tripInfo) => {
   const {destinations, dateFrom, dateTo, totalPrice} = tripInfo;
 
   const createDestinationsTemplate = (cityNames) => {
-    if (cityNames.length > 3) {
-      return `${cityNames[0]} &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
-    }
+    const firstCity = cityNames[0];
+    const otherCities = () => {
+      if (cityNames.length > 3) {
+        return ` &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
+      } else if (cityNames.length > 1 && cityNames.length <= 3) {
+        return  cityNames.filter((name, index) => index !== 0).map((name) => ` &mdash; ${name}`).join('');
+      } else {
+        return '';
+      }
+    };
 
-    return `${cityNames[0]} &mdash; ${cityNames[1]} &mdash; ${cityNames[2]}`;
+    return `${firstCity} ${otherCities()}`;
   };
 
   const startDate = humanizeDate(dateFrom, 'D MMM');
