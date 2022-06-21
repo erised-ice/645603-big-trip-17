@@ -19,7 +19,7 @@ const createSortItemTemplate = (sort, activeSort) => {
   );
 };
 
-const createNewSortViewTemplate = (sortItems, activeSort) => {
+const createSortViewTemplate = (sortItems, activeSort) => {
   const sortItemsTemplate = sortItems
     .map((sort) => createSortItemTemplate(sort, activeSort)).join('');
 
@@ -30,7 +30,7 @@ const createNewSortViewTemplate = (sortItems, activeSort) => {
 `);
 };
 
-export default class NewSortView extends AbstractView {
+export default class SortView extends AbstractView {
   #sorts = null;
   #activeSort = null;
 
@@ -41,7 +41,7 @@ export default class NewSortView extends AbstractView {
   }
 
   get template() {
-    return createNewSortViewTemplate(this.#sorts, this.#activeSort);
+    return createSortViewTemplate(this.#sorts, this.#activeSort);
   }
 
   setSortTypeChangeHandler = (callback) => {

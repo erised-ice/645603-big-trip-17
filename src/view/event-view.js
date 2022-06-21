@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {humanizeDate, datesDiff, setDurationFormat} from '../utils/utils';
 
-const createNewEventViewTemplate = (event, offersDataArray) => {
+const createEventViewTemplate = (event, serverOffers) => {
   const {basePrice, dateFrom, dateTo, destination, offers, type, isFavorite} = event;
 
   const date = humanizeDate(dateFrom, 'MMM D');
@@ -15,7 +15,7 @@ const createNewEventViewTemplate = (event, offersDataArray) => {
     ? 'event__favorite-btn event__favorite-btn--active'
     : 'event__favorite-btn';
 
-  const eventTypeOffer = offersDataArray.find((offer) => offer.type === event.type);
+  const eventTypeOffer = serverOffers.find((offer) => offer.type === event.type);
 
   const eventOffers = eventTypeOffer.offers.filter((item) => offers.includes(item.id));
 
@@ -66,7 +66,7 @@ const createNewEventViewTemplate = (event, offersDataArray) => {
 `);
 };
 
-export default class NewEventView extends AbstractView {
+export default class EventView extends AbstractView {
   #offers = [];
 
   constructor(event, offers) {
@@ -76,7 +76,7 @@ export default class NewEventView extends AbstractView {
   }
 
   get template() {
-    return createNewEventViewTemplate(this.event, this.#offers);
+    return createEventViewTemplate(this.event, this.#offers);
   }
 
   setOpenArrowClickHandler = (callback) => {

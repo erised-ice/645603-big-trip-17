@@ -1,5 +1,5 @@
 import {render, remove, RenderPosition} from '../framework/render';
-import NewEditFormView from '../view/edit-form-view';
+import EditFormView from '../view/edit-form-view';
 import {UpdateType, UserAction} from '../const';
 
 export default class EventNewPresenter {
@@ -23,7 +23,7 @@ export default class EventNewPresenter {
     if (this.#editFormComponent !== null) {
       return;
     }
-    this.#editFormComponent = new NewEditFormView({isAddForm: true}, this.#offersModel.offers, this.#destinationsModel.destinations);
+    this.#editFormComponent = new EditFormView({isAddForm: true}, this.#offersModel.offers, this.#destinationsModel.destinations);
 
     this.#editFormComponent.setSaveClickHandler(this.#handleSaveClick);
 

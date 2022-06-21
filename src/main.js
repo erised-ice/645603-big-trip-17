@@ -5,8 +5,8 @@ import FilterPresenter from './presenter/filter-presenter';
 import EventModel from './model/event-model';
 import OffersModel from './model/offers-model';
 import FilterModel from './model/filter-model';
-import NewEventButtonView from './view/new-event-button-view';
-import PointsApiService from './api/point-api-service';
+import EventButtonView from './view/event-button-view';
+import PointsApiService from './api/points-api-service';
 import OffersApiService from './api/offers-api-service';
 import DestinationsApiService from './api/destinations-api-service';
 import DestinationsModel from './model/destinations-model';
@@ -31,7 +31,7 @@ const filterModel = new FilterModel();
 const eventsListPresenter = new EventsListPresenter(siteEventsElement, eventModel, offersModel, destinationsModel, filterModel);
 const tripInfoPresenter = new TripInfoPresenter(siteMainElement, eventModel, offersModel);
 const filterPresenter = new FilterPresenter(siteFiltersElement, filterModel, eventModel);
-const newEventButtonComponent = new NewEventButtonView();
+const newEventButtonComponent = new EventButtonView();
 
 const handleNewEventFormClose = () => {
   newEventButtonComponent.element.disabled = false;

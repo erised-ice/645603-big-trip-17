@@ -16,7 +16,7 @@ const BLANK_EVENT = {
   isFavorite: false
 };
 
-const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destinationsArray) => {
+const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestinations) => {
   const {
     basePrice,
     dateFrom,
@@ -32,10 +32,10 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   const firstDate = humanizeDate(dateFrom, 'DD/MM/YYYY H:mm');
   const secondDate = humanizeDate(dateTo, 'DD/MM/YYYY H:mm');
 
-  const eventOffer = offersDataArray.find(
+  const eventOffer = serverOffers.find(
     (item) => item.type === data.type);
 
-  const eventDestination = destinationsArray.find(
+  const eventDestination = serverDestinations.find(
     (item) => item.name === data.destination.name);
 
   const createTypeEditTemplate = (currentType, isDisabledElement) => TYPES.map((eventType) => (
@@ -54,14 +54,14 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   ).join('');
 
   const createDestinationsListTemplate = () => (
-    destinationsArray.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
+    serverDestinations.map((item) => `<option value="${item.name}">${item.name}</option>`).join(''));
 
   const createOffersTemplate = (offersData, isDisabledElement) => (
     `${eventOffer.offers.length > 0 ? `<section class="event__section  event__section--offers">
       <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
       <div class="event__available-offers">
-        ${offersDataArray.find((offer) => offer.type === data.type).offers.map((item) => {
+        ${serverOffers.find((offer) => offer.type === data.type).offers.map((item) => {
 
       const checked = data.offers.includes(item.id) ? 'checked' : '';
 
@@ -86,7 +86,7 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
   );
 
   const createDestinationTemplate = (destinationData) => {
-    const hasDestination = destinationsArray.some((item) => item.name.toLowerCase() === destinationData.toLowerCase());
+    const hasDestination = serverDestinations.some((item) => item.name.toLowerCase() === destinationData.toLowerCase());
 
     return hasDestination ? (
       `${destinationData !== '' ?
@@ -184,14 +184,14 @@ const createNewEditFormViewTemplate = (data, isAddForm, offersDataArray, destina
 `);
 };
 
-export default class NewEditFormView extends AbstractStatefulView {
+export default class EditFormView extends AbstractStatefulView {
   #datepicker = null;
   #offers = [];
   #destinations = [];
 
   constructor({event: event = BLANK_EVENT, isAddForm: isAddForm = false}, offers, destinations) {
     super();
-    this._state = NewEditFormView.parseEventToState(event);
+    this._state = EditFormView.parseEventToState(event);
     this.isAddForm = isAddForm;
     this.#offers = offers;
     this.#destinations = destinations;
@@ -202,7 +202,7 @@ export default class NewEditFormView extends AbstractStatefulView {
   }
 
   get template() {
-    return createNewEditFormViewTemplate(this._state, this.isAddForm, this.#offers, this.#destinations);
+    return createEditFormViewTemplate(this._state, this.isAddForm, this.#offers, this.#destinations);
   }
 
   removeElement = () => {
@@ -268,13 +268,13 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   reset = (event) => {
     this.updateElement(
-      NewEditFormView.parseEventToState(event)
+      EditFormView.parseEventToState(event)
     );
   };
 
   #arrowClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.arrowClick(NewEditFormView.parseStateToEvent(this._state));
+    this._callback.arrowClick(EditFormView.parseStateToEvent(this._state));
   };
 
   setSaveClickHandler = (callback) => {
@@ -287,7 +287,7 @@ export default class NewEditFormView extends AbstractStatefulView {
     const hasDestination = this.#destinations.some((item) => item.name.toLowerCase() === this._state.destinationName.toLowerCase());
 
     if (hasDestination) {
-      this._callback.saveClick(NewEditFormView.parseStateToEvent(this._state));
+      this._callback.saveClick(EditFormView.parseStateToEvent(this._state));
       return;
     }
 
@@ -366,12 +366,12 @@ export default class NewEditFormView extends AbstractStatefulView {
 
   #formDeleteClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.deleteClick(NewEditFormView.parseStateToEvent(this._state));
+    this._callback.deleteClick(EditFormView.parseStateToEvent(this._state));
   };
 
   #formCancelClickHandler = (evt) => {
     evt.preventDefault();
-    this._callback.cancelClick(NewEditFormView.parseStateToEvent(this._state));
+    this._callback.cancelClick(EditFormView.parseStateToEvent(this._state));
   };
 
   static parseEventToState = (event) => ({...event,

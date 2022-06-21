@@ -1,11 +1,11 @@
 import {remove, render, RenderPosition} from '../framework/render';
-import NewTripEventsListView from '../view/trip-events-list-view';
+import TripEventsListView from '../view/trip-events-list-view';
 import NoEventsView from '../view/no-events-view';
 import LoadingView from '../view/loading-view';
 import EventPresenter from './event-presenter';
 import EventNewPresenter from './event-new-presenter';
-import NewSortView from '../view/sort-view';
-import {generateSort} from '../mock/sort';
+import SortView from '../view/sort-view';
+import {sorts} from '../utils/sort';
 import {sortEventsByDate, sortEventsByTime, sortEventsByPrice} from '../utils/sort';
 import {filter} from '../utils/filter';
 import {SortType, UpdateType, UserAction, FilterType} from '../const';
@@ -22,9 +22,9 @@ export default class EventsListPresenter {
   #offersModel = null;
   #destinationsModel = null;
   #filterModel = null;
-  #sorts = generateSort();
+  #sorts = sorts;
 
-  #eventsListComponent = new NewTripEventsListView();
+  #eventsListComponent = new TripEventsListView();
   #noEventsComponent = null;
   #loadingComponent = new LoadingView();
   #eventPresenter = new Map();
@@ -163,7 +163,7 @@ export default class EventsListPresenter {
   };
 
   #renderSort = () => {
-    this.#sortComponent = new NewSortView(this.#sorts, this.#activeSort);
+    this.#sortComponent = new SortView(this.#sorts, this.#activeSort);
     this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
 
     render(this.#sortComponent, this.#eventsListContainer, RenderPosition.AFTERBEGIN);

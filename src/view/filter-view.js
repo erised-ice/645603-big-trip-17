@@ -21,7 +21,7 @@ const createFilterItemTemplate = (filter, activeFilter) => {
   );
 };
 
-const createNewFilterViewTemplate = (filterItems, activeFilter) => {
+const createFilterViewTemplate = (filterItems, activeFilter) => {
   const filterItemsTemplate = filterItems
     .map((filter) => createFilterItemTemplate(filter, activeFilter)).join('');
 
@@ -33,7 +33,7 @@ const createNewFilterViewTemplate = (filterItems, activeFilter) => {
 `);
 };
 
-export default class NewFilterView extends AbstractView {
+export default class FilterView extends AbstractView {
   #filters = null;
   #activeFilter = null;
 
@@ -44,7 +44,7 @@ export default class NewFilterView extends AbstractView {
   }
 
   get template() {
-    return createNewFilterViewTemplate(this.#filters, this.#activeFilter);
+    return createFilterViewTemplate(this.#filters, this.#activeFilter);
   }
 
   setFilterTypeChangeHandler = (callback) => {

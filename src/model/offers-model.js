@@ -1,12 +1,10 @@
 import Observable from '../framework/observable';
 
 export default class OffersModel extends Observable {
-  #offersApiService = null;
   #offers = [];
 
-  constructor(offersApiService) {
+  constructor() {
     super();
-    this.#offersApiService = offersApiService;
   }
 
   get offers() {

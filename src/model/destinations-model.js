@@ -2,12 +2,10 @@ import Observable from '../framework/observable';
 import {UpdateType} from '../const';
 
 export default class DestinationsModel extends Observable {
-  #destinationsApiService = null;
   #destinations = [];
 
-  constructor(destinationsApiService) {
+  constructor() {
     super();
-    this.#destinationsApiService = destinationsApiService;
   }
 
   get destinations() {

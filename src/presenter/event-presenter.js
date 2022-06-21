@@ -1,6 +1,6 @@
 import {render, replace, remove} from '../framework/render';
-import NewEventView from '../view/event-view';
-import NewEditFormView from '../view/edit-form-view';
+import EventView from '../view/event-view';
+import EditFormView from '../view/edit-form-view';
 import {UpdateType, UserAction} from '../const';
 
 const Mode = {
@@ -35,8 +35,8 @@ export default class EventPresenter {
     const prevEventComponent = this.#eventComponent;
     const prevEditFormComponent = this.#editFormComponent;
 
-    this.#eventComponent = new NewEventView(event, this.#offersModel.offers);
-    this.#editFormComponent = new NewEditFormView({event}, this.#offersModel.offers, this.#destinationsModel.destinations);
+    this.#eventComponent = new EventView(event, this.#offersModel.offers);
+    this.#editFormComponent = new EditFormView({event}, this.#offersModel.offers, this.#destinationsModel.destinations);
 
     this.#eventComponent.setOpenArrowClickHandler(this.#handleOpenArrowClick);
     this.#eventComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
@@ -118,7 +118,7 @@ export default class EventPresenter {
 
   #replaceFormToEvent = () => {
     replace(this.#eventComponent, this.#editFormComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   };
 
