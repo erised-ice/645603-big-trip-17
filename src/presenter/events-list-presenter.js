@@ -197,8 +197,8 @@ export default class EventsListPresenter {
     if (this.events.length === 0) {
       this.#renderNoEvents();
     } else {
-      for (let i = 0; i < this.events.length; i++) {
-        this.#renderEvent(this.events[i]);
+      for (const event of this.events) {
+        this.#renderEvent(event);
       }
     }
 

@@ -6,17 +6,17 @@ const createTripInfoTemplate = (tripInfo) => {
 
   const createDestinationsTemplate = (cityNames) => {
     const firstCity = cityNames[0];
-    const otherCities = () => {
+    const getOtherCities = () => {
       if (cityNames.length > 3) {
         return ` &mdash; ... &mdash; ${cityNames[cityNames.length - 1]}`;
       } else if (cityNames.length > 1 && cityNames.length <= 3) {
         return  cityNames.filter((name, index) => index !== 0).map((name) => ` &mdash; ${name}`).join('');
-      } else {
-        return '';
       }
+
+      return '';
     };
 
-    return `${firstCity} ${otherCities()}`;
+    return `${firstCity} ${getOtherCities()}`;
   };
 
   const startDate = humanizeDate(dateFrom, 'D MMM');

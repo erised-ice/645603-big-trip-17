@@ -50,14 +50,14 @@ export default class TripInfoPresenter {
         dateTo: lastEvent.dateTo,
         totalPrice: totalBasePrice + totalOffersPrice
       };
-    } else {
-      return {
-        destinations: '-',
-        dateFrom: 0,
-        dateTo: 0,
-        totalPrice: 0
-      };
     }
+
+    return {
+      destinations: '-',
+      dateFrom: 0,
+      dateTo: 0,
+      totalPrice: 0
+    };
   }
 
   init = () => {

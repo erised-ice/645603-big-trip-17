@@ -73,6 +73,7 @@ const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestina
             ${checked}
             value="${item.id}"
             ${isDisabledElement ? 'disabled' : ''}
+            ${isDisabled ? 'disabled' : ''}
           >
           <label class="event__offer-label" for="event-offer-meal-${item.id}">
             <span class="event__offer-title">${item.title}</span>
@@ -119,7 +120,12 @@ const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestina
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input
+          class="event__type-toggle visually-hidden"
+          id="event-type-toggle-1"
+          type="checkbox"
+          ${isDisabled ? 'disabled' : ''}
+        >
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -133,7 +139,16 @@ const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestina
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1" required>
+        <input
+          class="event__input event__input--destination"
+          id="event-destination-1"
+          type="text"
+          name="event-destination"
+          value="${destination.name}"
+          list="destination-list-1"
+          required
+          ${isDisabled ? 'disabled' : ''}
+        >
         <datalist id="destination-list-1">
           ${destinationsList}
         </datalist>
@@ -141,10 +156,24 @@ const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestina
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${firstDate}">
+        <input
+          class="event__input  event__input--time"
+          id="event-start-time-1"
+          type="text"
+          name="event-start-time"
+          value="${firstDate}"
+          ${isDisabled ? 'disabled' : ''}
+        >
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${secondDate}">
+        <input
+          class="event__input event__input--time"
+          id="event-end-time-1"
+          type="text"
+          name="event-end-time"
+          value="${secondDate}"
+          ${isDisabled ? 'disabled' : ''}
+        >
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -152,7 +181,14 @@ const createEditFormViewTemplate = (data, isAddForm, serverOffers, serverDestina
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}">
+        <input
+          class="event__input event__input--price"
+          id="event-price-1"
+          type="number"
+          name="event-price"
+          value="${basePrice}"
+          ${isDisabled ? 'disabled' : ''}
+        >
       </div>
 
       <button
